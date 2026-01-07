@@ -5,6 +5,8 @@ interface AppState {
   participants: string[];
   // winners: Map prizeId to array of winner names
   winners: Record<string, string[]>;
+  eventName: string;
+  setEventName: (name: string) => void;
   isLocked: boolean; // Locks participant addition after first draw
 
   addParticipant: (name: string) => void;
@@ -19,13 +21,15 @@ interface AppState {
 
   setLocked: (locked: boolean) => void;
 }
-
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
+      eventName: "Label Acara", // Default value
       participants: [],
       winners: {},
       isLocked: false,
+
+      setEventName: (name) => set({ eventName: name }),
 
       addParticipant: (name) =>
         set((state) => {

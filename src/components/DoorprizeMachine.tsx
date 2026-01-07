@@ -100,8 +100,16 @@ export const DoorprizeMachine = () => {
     <div className="h-screen flex flex-col w-full">
       {/* Session Tabs */}
       <div className="max-w-7xl mx-auto">
-        <div className="pt-14">
-          <h1 className="text-5xl font-semibold text-white">Label Acara</h1>
+        <div className="pt-14 relative group">
+          <input
+            value={useStore((state) => state.eventName)}
+            onChange={(e) => useStore.getState().setEventName(e.target.value)}
+            className="text-5xl text-center font-semibold text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full"
+            placeholder="Label Acara"
+          />
+          <span className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
+            <Grip className="w-4 h-4" />
+          </span>
         </div>
       </div>
 
