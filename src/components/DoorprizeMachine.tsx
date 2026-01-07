@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Play, Trophy, RotateCcw, DotSquare, Grip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import confetti from "canvas-confetti";
 
 // Helper to flatten prizes into display units
 const getDisplayBoxes = (session: SessionData) => {
@@ -88,11 +89,31 @@ export const DoorprizeMachine = () => {
 
     // 5. Reset animation state
     const maxIndex = displayBoxes.length;
-    const maxTime = 7000 + maxIndex * 500 + 1000;
+
+    // Extended duration for "Doorprize Utama"
+    const baseDuration = activeSessionId === "utama" ? 10000 : 3000;
+    const maxTime = baseDuration + maxIndex * 500 + 1000;
 
     setTimeout(() => {
       setIsAnimationPlaying(false);
       setDrawingKeys(new Set());
+
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      // Extra burst for Grand Prize
+      if (activeSessionId === "utama") {
+        setTimeout(() => {
+          confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 }
+          });
+        }, 500);
+      }
     }, maxTime);
   };
 
@@ -211,6 +232,7 @@ export const DoorprizeMachine = () => {
                   // Only roll if explicitly part of current draw
                   isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
                   delay={idx} // Stagger effect
+                  baseDuration={activeSessionId === "utama" ? 10000 : 3000}
                 />
               );
             })}

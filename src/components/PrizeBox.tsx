@@ -9,6 +9,7 @@ interface PrizeBoxProps {
   isRolling: boolean;
   candidates: string[];
   delay?: number; // Delay before stopping to create staggered effect
+  baseDuration?: number; // Base duration for the shuffle
   onFinish?: () => void;
 }
 
@@ -18,6 +19,7 @@ export const PrizeBox = ({
   isRolling,
   candidates,
   delay = 0,
+  baseDuration = 3000,
   onFinish,
 }: PrizeBoxProps) => {
   const [displayedName, setDisplayedName] = useState<string>("???");
@@ -40,7 +42,7 @@ export const PrizeBox = ({
         if (intervalRef.current) clearInterval(intervalRef.current);
         setDisplayedName(winnerName || "No Winner");
         onFinish?.();
-      }, 3000 + delay * 500); // Base time + stagger
+      }, baseDuration + delay * 500); // Base time + stagger
 
       return () => {
         clearTimeout(timeout);
@@ -52,7 +54,7 @@ export const PrizeBox = ({
     } else {
       setDisplayedName("READY");
     }
-  }, [isRolling, winnerName, candidates, delay, onFinish]);
+  }, [isRolling, winnerName, candidates, delay, baseDuration, onFinish]);
 
   return (
     <motion.div
@@ -64,10 +66,12 @@ export const PrizeBox = ({
         "flex flex-col rounded-3xl items-center justify-center p-2 h-24 sm:h-32 shadow-md border-2 transition-colors duration-300 overflow-hidden relative",
         isRolling ? "border-yellow-400 bg-yellow-50" : winnerName ? "border-green-500 bg-green-50" : "border-slate-200"
       )}>
-        <div className="absolute top-3 left-0 w-full text-center">
-          <span className="text-[10px] sm:text-xs font-semibold text-black uppercase tracking-wider truncate px-1 block">
-            {prizeName}
-          </span>
+        <div className="absolute top-3 left-0 w-full text-center flex justify-center">
+          <div className="text-[10px] bg-slate-300 py-1 px-3 font-semibold rounded-full w-fit sm:text-xs text-black uppercase tracking-wider truncate block">
+            <span>
+              {prizeName}
+            </span>
+          </div>
         </div>
         <div className="flex-1 flex items-center justify-center pt-3 w-full">
           <span className={cn(
