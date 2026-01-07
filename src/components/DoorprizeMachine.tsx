@@ -8,6 +8,17 @@ import { AlertCircle, Play, Trophy, RotateCcw, DotSquare, Grip } from "lucide-re
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import confetti from "canvas-confetti";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Helper to flatten prizes into display units
 const getDisplayBoxes = (session: SessionData) => {
@@ -174,16 +185,35 @@ export const DoorprizeMachine = () => {
                     <Grip className="size-5" />
                   </PopoverTrigger>
                   <PopoverContent className="flex justify-center items-center h-[140px] ">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={resetDraw}
-                      disabled={isAnimationPlaying}
-                      className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
-                    >
-                      <RotateCcw className="w-4 h-4 mr-2" />
-                      Reset Prizes
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={isAnimationPlaying}
+                          className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
+                        >
+                          <RotateCcw className="w-4 h-4 mr-2" />
+                          Reset Prizes
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will clear all winners for ALL sessions. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => {
+                            resetDraw();
+                          }} className="bg-red-500 hover:bg-red-600">
+                            Confirm Reset
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </PopoverContent>
                 </Popover>
               </div>

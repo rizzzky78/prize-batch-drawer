@@ -6,6 +6,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Plus, Users, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const ParticipantManager = () => {
   const [name, setName] = useState("");
@@ -35,17 +46,34 @@ export const ParticipantManager = () => {
               {participants.length} total
             </Badge>
           </CardTitle>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={resetParticipants}
-            disabled={isLocked || participants.length === 0}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-            title="Reset all participants"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={isLocked || participants.length === 0}
+                className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
+                title="Reset all participants"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently remove all participants from the list.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={resetParticipants} className="bg-red-500 hover:bg-red-600">
+                  Yes, Reset All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardHeader>
 
@@ -59,7 +87,7 @@ export const ParticipantManager = () => {
             disabled={isLocked}
             className="flex-1"
           />
-          <Button onClick={handleAdd} disabled={isLocked || !name.trim()} size="icon">
+          <Button variant="outline" onClick={handleAdd} disabled={isLocked || !name.trim()} size="icon" >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
