@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface AppState {
   participants: string[];
@@ -20,6 +20,9 @@ interface AppState {
   resetDraw: () => void;
 
   setLocked: (locked: boolean) => void;
+
+  // Update a specific winner (for reshuffle)
+  updateWinner: (prizeId: string, index: number, winnerName: string) => void;
 }
 export const useStore = create<AppState>()(
   persist(
@@ -44,10 +47,10 @@ export const useStore = create<AppState>()(
 
       resetParticipants: () =>
         set((state) => {
-          if (state.isLocked) return state; // Should probably allow reset if we reset everything? 
+          if (state.isLocked) return state; // Should probably allow reset if we reset everything?
           // User requirement: "has reset participant". Usually implies full reset.
           // But if we have winners, removing participants might be weird if we want to keep history?
-          // Let's assume reset participants clears them. 
+          // Let's assume reset participants clears them.
           // If "not able to add participant anymore" is strict, maybe we unlock on reset.
           return { participants: [], isLocked: false };
         }),
@@ -67,16 +70,28 @@ export const useStore = create<AppState>()(
       resetDraw: () =>
         set(() => ({
           winners: {},
-          isLocked: false, // Unlock to allow adding more participants? 
-          // Requirement: "has reset prize/draw". 
-          // "has reset participant" is separate. 
+          isLocked: false, // Unlock to allow adding more participants?
+          // Requirement: "has reset prize/draw".
+          // "has reset participant" is separate.
           // If I reset draw, I probably want to re-shuffle existing participants.
         })),
 
       setLocked: (locked) => set({ isLocked: locked }),
+
+      updateWinner: (prizeId, index, winnerName) =>
+        set((state) => {
+          const currentWinners = [...(state.winners[prizeId] || [])];
+          currentWinners[index] = winnerName;
+          return {
+            winners: {
+              ...state.winners,
+              [prizeId]: currentWinners,
+            },
+          };
+        }),
     }),
     {
-      name: 'doorprize-storage',
+      name: "doorprize-storage",
       storage: createJSONStorage(() => localStorage),
     }
   )

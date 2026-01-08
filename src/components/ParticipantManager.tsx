@@ -20,7 +20,13 @@ import {
 
 export const ParticipantManager = () => {
   const [name, setName] = useState("");
-  const { participants, addParticipant, removeParticipant, resetParticipants, isLocked } = useStore();
+  const {
+    participants,
+    addParticipant,
+    removeParticipant,
+    resetParticipants,
+    isLocked,
+  } = useStore();
 
   const handleAdd = () => {
     if (name.trim()) {
@@ -63,12 +69,16 @@ export const ParticipantManager = () => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently remove all participants from the list.
+                  This action cannot be undone. This will permanently remove all
+                  participants from the list.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={resetParticipants} className="bg-red-500 hover:bg-red-600">
+                <AlertDialogAction
+                  onClick={resetParticipants}
+                  className="bg-red-500 hover:bg-red-600"
+                >
                   Yes, Reset All
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -80,21 +90,30 @@ export const ParticipantManager = () => {
       <CardContent className="flex-1 pt-10 flex flex-col gap-4 overflow-hidden">
         <div className="flex gap-2">
           <Input
-            placeholder={isLocked ? "Registration closed" : "Enter participant name... and then press Enter to entry"}
+            placeholder={
+              isLocked
+                ? "Registration closed"
+                : "Enter participant name... and then press Enter to entry"
+            }
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLocked}
             className="flex-1"
           />
-          <Button variant="outline" onClick={handleAdd} disabled={isLocked || !name.trim()} size="icon" >
+          <Button
+            variant="outline"
+            onClick={handleAdd}
+            disabled={isLocked || !name.trim()}
+            size="icon"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 -mx-4 px-4">
+        <ScrollArea className="flex-1 -mx-4 px-4 h-[80vh]">
           {participants.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-slate-400 text-sm italic">
+            <div className="h-[400px] flex flex-col items-center justify-center py-8 text-slate-400 text-sm italic">
               <Users className="w-12 h-12 mb-2 opacity-20" />
               No participants yet
             </div>

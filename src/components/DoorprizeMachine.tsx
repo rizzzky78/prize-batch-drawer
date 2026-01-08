@@ -4,8 +4,16 @@ import { PRIZE_DATA, SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Play, Trophy, RotateCcw, DotSquare, Grip } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  AlertCircle,
+  Play,
+  Trophy,
+  RotateCcw,
+  DotSquare,
+  Grip,
+  Check,
+} from "lucide-react";
+import { cn, fisherYatesShuffle } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import confetti from "canvas-confetti";
 import {
@@ -40,15 +48,29 @@ export const DoorprizeMachine = () => {
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
   const [drawingKeys, setDrawingKeys] = useState<Set<string>>(new Set());
 
-  const { participants, winners, addWinner, resetDraw } = useStore();
+  // Reshuffle State
+  const [reshuffleTarget, setReshuffleTarget] = useState<{
+    prizeId: string;
+    index: number;
+    key: string;
+  } | null>(null);
 
-  const activeSession = PRIZE_DATA.find((s) => s.id === activeSessionId) || PRIZE_DATA[0];
-  const displayBoxes = useMemo(() => getDisplayBoxes(activeSession), [activeSession]);
+  const { participants, winners, addWinner, resetDraw, updateWinner } =
+    useStore();
+
+  const activeSession =
+    PRIZE_DATA.find((s) => s.id === activeSessionId) || PRIZE_DATA[0];
+  const displayBoxes = useMemo(
+    () => getDisplayBoxes(activeSession),
+    [activeSession]
+  );
 
   const existingWinners = new Set(Object.values(winners).flat());
-  const availableCandidates = participants.filter((p) => !existingWinners.has(p));
+  const availableCandidates = participants.filter(
+    (p) => !existingWinners.has(p)
+  );
 
-  const sessionWinnersCount = displayBoxes.filter(box => {
+  const sessionWinnersCount = displayBoxes.filter((box) => {
     const list = winners[box.prize.id] || [];
     return list[box.index] !== undefined;
   }).length;
@@ -60,13 +82,13 @@ export const DoorprizeMachine = () => {
 
     // 1. Identify needed slots
     const slotsToFill: { prizeId: string; index: number; key: string }[] = [];
-    displayBoxes.forEach(box => {
+    displayBoxes.forEach((box) => {
       const prizeWinners = winners[box.prize.id] || [];
       if (!prizeWinners[box.index]) {
         slotsToFill.push({
           prizeId: box.prize.id,
           index: box.index,
-          key: box.key
+          key: box.key,
         });
       }
     });
@@ -74,23 +96,25 @@ export const DoorprizeMachine = () => {
     if (slotsToFill.length === 0) return;
 
     if (availableCandidates.length < slotsToFill.length) {
-      alert(`Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`);
+      alert(
+        `Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`
+      );
       return;
     }
 
     // 2. Shuffle candidates and pick winners
-    const shuffled = [...availableCandidates].sort(() => 0.5 - Math.random());
+    const shuffled = fisherYatesShuffle(availableCandidates);
     const allocatedWinners: { prizeId: string; name: string }[] = [];
 
     slotsToFill.forEach((slot, idx) => {
       allocatedWinners.push({
         prizeId: slot.prizeId,
-        name: shuffled[idx]
+        name: shuffled[idx],
       });
     });
 
     // 3. Set drawing keys AND animation state
-    setDrawingKeys(new Set(slotsToFill.map(s => s.key)));
+    setDrawingKeys(new Set(slotsToFill.map((s) => s.key)));
     setIsAnimationPlaying(true);
 
     // 4. Update store
@@ -110,9 +134,9 @@ export const DoorprizeMachine = () => {
       setDrawingKeys(new Set());
 
       confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
+        particleCount: 500,
+        spread: 100,
+        origin: { y: 0.6 },
       });
 
       // Extra burst for Grand Prize
@@ -121,11 +145,68 @@ export const DoorprizeMachine = () => {
           confetti({
             particleCount: 150,
             spread: 100,
-            origin: { y: 0.6 }
+            origin: { y: 0.6 },
           });
         }, 500);
       }
     }, maxTime);
+  };
+
+  const handleReshuffleClick = (box: {
+    prize: PrizeItem;
+    index: number;
+    key: string;
+  }) => {
+    if (isAnimationPlaying) return;
+    setReshuffleTarget({
+      prizeId: box.prize.id,
+      index: box.index,
+      key: box.key,
+    });
+  };
+
+  const handleConfirmReshuffle = () => {
+    if (!reshuffleTarget) return;
+
+    // 1. Get pool of candidates excluding ALL current winners (including the one being replaced,
+    // effectively, because we want a NEW winner)
+
+    // Note: availableCandidates already filters out anyone in 'existingWinners'.
+    // The current winner of this prize IS in 'existingWinners'.
+    // So 'availableCandidates' are people who definitely haven't won anything yet.
+    // If the requirement is "winner didn't attend", they enter back to 'not winners'?
+    // Or are they disqualified?
+    // Assuming we pick from 'availableCandidates' (people who haven't won yet).
+
+    if (availableCandidates.length === 0) {
+      alert("No available candidates to reshuffle!");
+      setReshuffleTarget(null);
+      return;
+    }
+
+    // 2. Pick a new winner
+    const shuffled = fisherYatesShuffle(availableCandidates);
+    const newWinner = shuffled[0];
+
+    // 3. Animate ONLY this box
+    setDrawingKeys(new Set([reshuffleTarget.key]));
+    setIsAnimationPlaying(true);
+    setReshuffleTarget(null);
+
+    // 4. Update store
+    updateWinner(reshuffleTarget.prizeId, reshuffleTarget.index, newWinner);
+
+    // 5. Reset animation state
+    setTimeout(() => {
+      setIsAnimationPlaying(false);
+      setDrawingKeys(new Set());
+      // Simple confetti for reshuffle
+      confetti({
+        particleCount: 50,
+        spread: 50,
+        origin: { y: 0.6 },
+      });
+    }, 4000); // 3s base + 1s buffer
   };
 
   return (
@@ -150,9 +231,13 @@ export const DoorprizeMachine = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-white">{activeSession.name}</h2>
-              <p className="text-slate-500 mt-1">
-                {displayBoxes.length} Items • {availableCandidates.length} potential winners left
+              <h2 className="text-xl uppercase font-bold text-white">
+                {activeSession.name}
+              </h2>
+              <p className="text-slate-300 mt-1 text-sm">
+                <span>{availableCandidates.length} potential winners left</span>
+                <br />
+                <span>{displayBoxes.length}</span> Items
               </p>
             </div>
 
@@ -163,7 +248,7 @@ export const DoorprizeMachine = () => {
                   onClick={() => setActiveSessionId(session.id)}
                   disabled={isAnimationPlaying}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                    "px-3 flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
                     activeSessionId === session.id
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -173,8 +258,12 @@ export const DoorprizeMachine = () => {
                   {/* Show progress dot */}
                   {(() => {
                     const sBoxes = getDisplayBoxes(session);
-                    const sCompleted = sBoxes.every(b => (winners[b.prize.id] || [])[b.index]);
-                    return sCompleted ? <span className="ml-2 text-green-400">●</span> : null;
+                    const sCompleted = sBoxes.every(
+                      (b) => (winners[b.prize.id] || [])[b.index]
+                    );
+                    return sCompleted ? (
+                      <Check className="ml-1 size-3 text-green-400" />
+                    ) : null;
                   })()}
                 </button>
               ))}
@@ -201,14 +290,18 @@ export const DoorprizeMachine = () => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will clear all winners for ALL sessions. This action cannot be undone.
+                            This will clear all winners for ALL sessions. This
+                            action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => {
-                            resetDraw();
-                          }} className="bg-red-500 hover:bg-red-600">
+                          <AlertDialogAction
+                            onClick={() => {
+                              resetDraw();
+                            }}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
                             Confirm Reset
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -223,14 +316,20 @@ export const DoorprizeMachine = () => {
               <Button
                 size="lg"
                 onClick={handleStartDraw}
-                disabled={isAnimationPlaying || availableCandidates.length === 0}
+                disabled={
+                  isAnimationPlaying || availableCandidates.length === 0
+                }
                 className={cn(
-                  "cursor-pointer h-14 px-8 text-lg shadow-xl transition-all font-bold tracking-wide",
-                  isAnimationPlaying ? "bg-yellow-500 scale-95" : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
+                  "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
+                  isAnimationPlaying
+                    ? "bg-yellow-500 scale-95"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
                 )}
               >
                 {isAnimationPlaying ? (
-                  <span className="flex items-center animate-pulse">Running Draw...</span>
+                  <span className="flex items-center animate-pulse">
+                    Running Draw...
+                  </span>
                 ) : (
                   <span className="flex items-center">
                     <Play className="fill-current w-6 h-6 mr-2" />
@@ -240,7 +339,7 @@ export const DoorprizeMachine = () => {
               </Button>
             )}
             {isSessionComplete && (
-              <div className="px-6 py-3 h-14 bg-green-100 text-green-800 rounded-lg flex items-center font-bold">
+              <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
                 <Trophy className="w-6 h-6 mr-2" />
                 Batch Complete
               </div>
@@ -248,27 +347,61 @@ export const DoorprizeMachine = () => {
           </div>
 
           {/* Boxes Grid */}
-          <div className="pt-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-12">
-            {displayBoxes.map((box, idx) => {
-              const prizeWinners = winners[box.prize.id] || [];
-              const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
+          <div className="h-[60vh] flex items-center justify-center">
+            <div
+              title="prize boxes"
+              // className="pt-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-12"
+              className="flex flex-wrap items-center justify-center gap-2"
+            >
+              {displayBoxes.map((box, idx) => {
+                const prizeWinners = winners[box.prize.id] || [];
+                const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
 
-              return (
-                <PrizeBox
-                  key={box.key}
-                  prizeName={box.prize.name}
-                  winnerName={winnerName}
-                  candidates={participants}
-                  // Only roll if explicitly part of current draw
-                  isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
-                  delay={idx} // Stagger effect
-                  baseDuration={activeSessionId === "utama" ? 10000 : 3000}
-                />
-              );
-            })}
+                return (
+                  <PrizeBox
+                    key={box.key}
+                    activeSessionId={activeSessionId}
+                    prizeName={box.prize.name}
+                    winnerName={winnerName}
+                    candidates={participants}
+                    // Only roll if explicitly part of current draw
+                    isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
+                    delay={idx} // Stagger effect
+                    baseDuration={activeSessionId === "utama" ? 10000 : 3000}
+                    onReshuffle={() => handleReshuffleClick(box)}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Reshuffle Confirmation Dialog */}
+      <AlertDialog
+        open={!!reshuffleTarget}
+        onOpenChange={(open) => !open && setReshuffleTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reshuffle Winner?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reshuffle this prize? The current winner
+              will be replaced by a new random candidate. This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmReshuffle}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white"
+            >
+              Confirm Reshuffle
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
