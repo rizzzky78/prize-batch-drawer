@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import { PRIZE_DATA, SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
@@ -57,6 +57,37 @@ export const DoorprizeMachine = () => {
 
   const { participants, winners, addWinner, resetDraw, updateWinner } =
     useStore();
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize audio
+    audioRef.current = new Audio("/winner-sound-clap-final.mp3");
+    audioRef.current.loop = false; // Playing full track with celebration
+    audioRef.current.volume = 1.0;
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isAnimationPlaying) {
+      // Play sound
+      audioRef.current
+        ?.play()
+        .catch((e) => console.log("Audio play failed:", e));
+    } else {
+      // Stop sound
+      if (audioRef.current) {
+        // audioRef.current.pause();
+        // audioRef.current.currentTime = 0;
+      }
+    }
+  }, [isAnimationPlaying]);
 
   const activeSession =
     PRIZE_DATA.find((s) => s.id === activeSessionId) || PRIZE_DATA[0];
@@ -123,33 +154,32 @@ export const DoorprizeMachine = () => {
     });
 
     // 5. Reset animation state
-    const maxIndex = displayBoxes.length;
+    // Audio: 9s shuffle + 5s celebration = 14s total
+    const SHUFFLE_DURATION = 9000;
+    const TOTAL_DURATION = 14000;
 
-    // Extended duration for "Doorprize Utama"
-    const baseDuration = activeSessionId === "utama" ? 10000 : 3000;
-    const maxTime = baseDuration + maxIndex * 500 + 1000;
-
+    // Trigger confetti exactly when shuffling ends (at 9s)
     setTimeout(() => {
-      setIsAnimationPlaying(false);
-      setDrawingKeys(new Set());
-
       confetti({
-        particleCount: 500,
+        particleCount: 150,
         spread: 100,
         origin: { y: 0.6 },
       });
+      // Extra burst shortly after
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 160,
+          origin: { y: 0.6 },
+        });
+      }, 500);
+    }, SHUFFLE_DURATION);
 
-      // Extra burst for Grand Prize
-      if (activeSessionId === "utama") {
-        setTimeout(() => {
-          confetti({
-            particleCount: 150,
-            spread: 100,
-            origin: { y: 0.6 },
-          });
-        }, 500);
-      }
-    }, maxTime);
+    // Reset state after full audio duration (14s)
+    setTimeout(() => {
+      setIsAnimationPlaying(false);
+      setDrawingKeys(new Set());
+    }, TOTAL_DURATION);
   };
 
   const handleReshuffleClick = (box: {
@@ -197,17 +227,42 @@ export const DoorprizeMachine = () => {
     updateWinner(reshuffleTarget.prizeId, reshuffleTarget.index, newWinner);
 
     // 5. Reset animation state
+    const SHUFFLE_DURATION = 9000;
+    const TOTAL_DURATION = 14000;
+
+    // Confetti at 9s
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 100,
+        origin: { y: 0.6 },
+      });
+    }, SHUFFLE_DURATION);
+
+    // Cleanup at 14s
     setTimeout(() => {
       setIsAnimationPlaying(false);
       setDrawingKeys(new Set());
-      // Simple confetti for reshuffle
-      confetti({
-        particleCount: 50,
-        spread: 50,
-        origin: { y: 0.6 },
-      });
-    }, 4000); // 3s base + 1s buffer
+    }, TOTAL_DURATION);
   };
+
+  // Calculate dynamic base duration to ensure animation always ends around 9-10s
+  const drawingIndices = useMemo(() => {
+    return Array.from(drawingKeys).map((k) => {
+      const parts = k.split("-");
+      return parseInt(parts[parts.length - 1] || "0");
+    });
+  }, [drawingKeys]);
+
+  const maxDrawingIndex =
+    drawingIndices.length > 0 ? Math.max(...drawingIndices) : 0;
+
+  // Target finish time is 9000ms (draw sound ends, celebration starts)
+  // formula: stopTime = base + index*500
+  // we want: base + maxIndex*500 = 9000
+  // so: base = 9000 - maxIndex*500
+  // Minimum base of 2000s just to be safe, but typically maxIndex is small (0-4) so 9000-2000=7000 is fine.
+  const dynamicBaseDuration = Math.max(2000, 9000 - maxDrawingIndex * 500);
 
   return (
     <div className="h-screen flex flex-col w-full">
@@ -248,7 +303,7 @@ export const DoorprizeMachine = () => {
                   onClick={() => setActiveSessionId(session.id)}
                   disabled={isAnimationPlaying}
                   className={cn(
-                    "px-3 flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
+                    "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
                     activeSessionId === session.id
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -333,7 +388,7 @@ export const DoorprizeMachine = () => {
                 ) : (
                   <span className="flex items-center">
                     <Play className="fill-current w-6 h-6 mr-2" />
-                    DRAW BATCH
+                    START DRAW
                   </span>
                 )}
               </Button>
@@ -341,7 +396,7 @@ export const DoorprizeMachine = () => {
             {isSessionComplete && (
               <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
                 <Trophy className="w-6 h-6 mr-2" />
-                Batch Complete
+                Draw Complete
               </div>
             )}
           </div>
@@ -367,7 +422,7 @@ export const DoorprizeMachine = () => {
                     // Only roll if explicitly part of current draw
                     isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
                     delay={idx} // Stagger effect
-                    baseDuration={activeSessionId === "utama" ? 10000 : 3000}
+                    baseDuration={dynamicBaseDuration}
                     onReshuffle={() => handleReshuffleClick(box)}
                   />
                 );

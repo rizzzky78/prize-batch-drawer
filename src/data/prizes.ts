@@ -86,11 +86,11 @@ export const PRIZE_DATA: SessionData[] = [
   },
   {
     id: "grand-1",
-    name: "Grand 1",
+    name: "Grand 5",
     prizes: [
       {
         id: "g1-1",
-        category: "Grand 1",
+        category: "Grand 5",
         name: "Mesin Cuci Sanken",
         quantity: 1,
       },
@@ -98,11 +98,11 @@ export const PRIZE_DATA: SessionData[] = [
   },
   {
     id: "grand-2",
-    name: "Grand 2",
+    name: "Grand 4",
     prizes: [
       {
         id: "g2-1",
-        category: "Grand 2",
+        category: "Grand 4",
         name: "Kulkas 1 Pintu Sharp",
         quantity: 1,
       },
@@ -121,36 +121,12 @@ export const PRIZE_DATA: SessionData[] = [
     ],
   },
   {
-    id: "grand-4",
-    name: "Grand 4",
-    prizes: [
-      {
-        id: "g4-1",
-        category: "Grand 4",
-        name: "Kulkas 1 Pintu Sharp",
-        quantity: 1,
-      },
-    ],
-  },
-  {
-    id: "grand-5",
-    name: "Grand 5",
-    prizes: [
-      {
-        id: "g5-1",
-        category: "Grand 5",
-        name: "Dispenser GEA",
-        quantity: 1,
-      },
-    ],
-  },
-  {
     id: "super-1",
-    name: "Super Grand 1",
+    name: "Grand 2",
     prizes: [
       {
         id: "sg1-1",
-        category: "Super Grand 1",
+        category: "Grand 2",
         name: "Sepeda Polygon",
         quantity: 1,
       },
@@ -158,11 +134,11 @@ export const PRIZE_DATA: SessionData[] = [
   },
   {
     id: "super-2",
-    name: "Super Grand 2",
+    name: "Grand 1",
     prizes: [
       {
         id: "sg2-1",
-        category: "Super Grand 2",
+        category: "Grand 1",
         name: "TV Toshiba 43inch",
         quantity: 1,
       },
