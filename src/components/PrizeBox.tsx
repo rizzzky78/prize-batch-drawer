@@ -79,7 +79,7 @@ export const PrizeBox = ({
         )}
       >
         <div className="absolute top-3 left-0 w-full text-center flex justify-center">
-          <div className="text-[10px] bg-slate-300 py-1 px-3 font-semibold rounded-full w-fit sm:text-xs text-black uppercase tracking-wider truncate block">
+          <div className="text-[10px] bg-slate-200 py-1 px-3 font-semibold rounded-full w-fit sm:text-xs text-black uppercase tracking-wider truncate block">
             <span>{prizeName}</span>
           </div>
         </div>

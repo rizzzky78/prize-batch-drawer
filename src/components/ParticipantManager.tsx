@@ -29,8 +29,15 @@ export const ParticipantManager = () => {
   } = useStore();
 
   const handleAdd = () => {
-    if (name.trim()) {
-      addParticipant(name.trim());
+    const trimmedName = name.trim();
+    if (trimmedName) {
+      if (
+        participants.some((p) => p.toLowerCase() === trimmedName.toLowerCase())
+      ) {
+        alert("The input participant name was duplicate.");
+        return;
+      }
+      addParticipant(trimmedName);
       setName("");
     }
   };
@@ -122,7 +129,7 @@ export const ParticipantManager = () => {
               {participants.map((p, idx) => (
                 <div
                   key={`${p}-${idx}`}
-                  className="group flex items-center justify-between bg-slate-50 border rounded-lg px-3 py-2 text-sm hover:border-slate-300 transition-colors"
+                  className="group flex items-center justify-between bg-slate-50 border rounded-none px-3 py-2 text-sm hover:border-slate-300 transition-colors"
                 >
                   <span className="truncate">{p}</span>
                   {!isLocked && (

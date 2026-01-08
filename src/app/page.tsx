@@ -2,10 +2,37 @@
 
 import { DoorprizeMachine } from "@/components/DoorprizeMachine";
 import { ParticipantManager } from "@/components/ParticipantManager";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 font-sans">
+      <header className="absolute top-0 left-0 right-0 z-50">
+        <div className="w-full flex justify-between">
+          <div className="pl-8 pr-20 pt-6 pb-4 rounded-br-[100px] bg-white flex items-center">
+            <Image
+              src="/logo-kpi-warna-besar.png"
+              alt="Logo"
+              width={100}
+              height={100}
+              quality={100}
+              priority
+              className="w-30 object-contain"
+            />
+          </div>
+          <div className="pr-8 pl-20 pt-6 pb-4 rounded-bl-[100px] bg-white flex items-center">
+            <Image
+              src="/Logo-OM-70.png"
+              alt="Logo"
+              width={100}
+              height={100}
+              quality={100}
+              priority
+              className="w-30 object-contain mt-3"
+            />
+          </div>
+        </div>
+      </header>
       {/* Top Section: Draw Machine (Takes available space) */}
       <section className="">
         <DoorprizeMachine />
@@ -20,7 +47,7 @@ export default function Home() {
 
       <footer className="py-8 text-center text-slate-400 text-sm z-30 pb-10">
         <p>
-          Made with{" "} ♥️ by{" "}
+          Made with ♥️ by{" "}
           <a
             href="https://codebyrzky.site"
             target="_blank"

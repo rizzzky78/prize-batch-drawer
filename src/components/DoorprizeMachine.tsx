@@ -4,15 +4,7 @@ import { PRIZE_DATA, SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertCircle,
-  Play,
-  Trophy,
-  RotateCcw,
-  DotSquare,
-  Grip,
-  Check,
-} from "lucide-react";
+import { Play, Trophy, RotateCcw, Grip, Check } from "lucide-react";
 import { cn, fisherYatesShuffle } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import confetti from "canvas-confetti";
@@ -273,7 +265,7 @@ export const DoorprizeMachine = () => {
             value={useStore((state) => state.eventName)}
             onChange={(e) => useStore.getState().setEventName(e.target.value)}
             className="text-5xl text-center font-semibold text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full"
-            placeholder="Label Acara"
+            placeholder="Edit Label Acara"
           />
           <span className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
             <Grip className="w-4 h-4" />
@@ -284,7 +276,7 @@ export const DoorprizeMachine = () => {
       {/* Main Draw Area */}
       <div className="p-4 overflow-y-auto min-h-[500px]">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-center space-x-4 mb-6">
             <div>
               <h2 className="text-xl uppercase font-bold text-white">
                 {activeSession.name}

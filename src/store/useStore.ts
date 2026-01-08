@@ -27,7 +27,7 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      eventName: "Label Acara", // Default value
+      eventName: "Edit Label Acara", // Default value
       participants: [],
       winners: {},
       isLocked: false,
