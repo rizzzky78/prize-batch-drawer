@@ -1,8 +1,13 @@
-"use client";
 
 import { DoorprizeMachine } from "@/components/DoorprizeMachine";
 import { ParticipantManager } from "@/components/ParticipantManager";
 import Image from "next/image";
+
+
+export const metadata = {
+  title: "OM 70 Synergi Insani",
+  description: "Doorprize Machine",
+}
 
 export default function Home() {
   return (
@@ -11,17 +16,6 @@ export default function Home() {
         <div className="w-full flex justify-between">
           <div className="pl-8 pr-20 pt-6 pb-4 rounded-br-[100px] bg-white flex items-center">
             <Image
-              src="/logo-kpi-warna-besar.png"
-              alt="Logo"
-              width={100}
-              height={100}
-              quality={100}
-              priority
-              className="w-30 object-contain"
-            />
-          </div>
-          <div className="pr-8 pl-20 pt-6 pb-4 rounded-bl-[100px] bg-white flex items-center">
-            <Image
               src="/Logo-OM-70.png"
               alt="Logo"
               width={100}
@@ -29,6 +23,17 @@ export default function Home() {
               quality={100}
               priority
               className="w-30 object-contain mt-3"
+            />
+          </div>
+          <div className="pr-8 pl-20 pt-6 pb-4 rounded-bl-[100px] bg-white flex items-center">
+            <Image
+              src="/logo-kpi-warna-besar.png"
+              alt="Logo"
+              width={100}
+              height={100}
+              quality={100}
+              priority
+              className="w-30 object-contain"
             />
           </div>
         </div>

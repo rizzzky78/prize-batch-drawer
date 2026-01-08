@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import { PRIZE_DATA, SessionData, PrizeItem } from "@/data/prizes";
@@ -410,7 +412,7 @@ export const DoorprizeMachine = () => {
                     activeSessionId={activeSessionId}
                     prizeName={box.prize.name}
                     winnerName={winnerName}
-                    candidates={participants}
+                    candidates={availableCandidates}
                     // Only roll if explicitly part of current draw
                     isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
                     delay={idx} // Stagger effect

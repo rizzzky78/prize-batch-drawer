@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react";
 import { useStore } from "@/store/useStore";
 import { Input } from "@/components/ui/input";
