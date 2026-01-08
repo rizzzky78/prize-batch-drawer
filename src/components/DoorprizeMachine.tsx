@@ -262,7 +262,7 @@ export const DoorprizeMachine = () => {
   // we want: base + maxIndex*500 = 9000
   // so: base = 9000 - maxIndex*500
   // Minimum base of 2000s just to be safe, but typically maxIndex is small (0-4) so 9000-2000=7000 is fine.
-  const dynamicBaseDuration = Math.max(2000, 9000 - maxDrawingIndex * 500);
+  const dynamicBaseDuration = Math.max(3000, 9000 - maxDrawingIndex * 500);
 
   return (
     <div className="h-screen flex flex-col w-full">

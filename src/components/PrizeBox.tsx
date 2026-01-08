@@ -57,7 +57,7 @@ export const PrizeBox = ({
       // If not rolling but has winner (persisted state), show winner
       setDisplayedName(winnerName);
     } else {
-      setDisplayedName("READY");
+      setDisplayedName("????");
     }
   }, [isRolling, winnerName, candidates, delay, baseDuration, onFinish]);
 
