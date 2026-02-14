@@ -2,12 +2,13 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
-import { PRIZE_DATA, SessionData, PrizeItem } from "@/data/prizes";
+import { SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Trophy, RotateCcw, Grip, Check } from "lucide-react";
-import { cn, fisherYatesShuffle } from "@/lib/utils";
+import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { shuffleWithRandomOrg } from "@/lib/random";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import confetti from "canvas-confetti";
 import {
@@ -38,7 +39,7 @@ const getDisplayBoxes = (session: SessionData) => {
 };
 
 export const DoorprizeMachine = () => {
-  const [activeSessionId, setActiveSessionId] = useState<string>("sesi-1");
+  const [activeSessionId, setActiveSessionId] = useState<string>("");
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
   const [drawingKeys, setDrawingKeys] = useState<Set<string>>(new Set());
 
@@ -49,7 +50,7 @@ export const DoorprizeMachine = () => {
     key: string;
   } | null>(null);
 
-  const { participants, winners, addWinner, resetDraw, updateWinner } =
+  const { participants, winners, addWinner, resetDraw, updateWinner, sessions } =
     useStore();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -83,10 +84,23 @@ export const DoorprizeMachine = () => {
     }
   }, [isAnimationPlaying]);
 
-  const activeSession =
-    PRIZE_DATA.find((s) => s.id === activeSessionId) || PRIZE_DATA[0];
+  useEffect(() => {
+    // Sync active session if invalid or not set
+    if (sessions.length > 0) {
+      const exists = sessions.find((s) => s.id === activeSessionId);
+      if (!exists) {
+        setActiveSessionId(sessions[0].id);
+      }
+    }
+  }, [sessions, activeSessionId]);
+
+  const activeSession = useMemo(() => {
+    if (sessions.length === 0) return null;
+    return sessions.find((s) => s.id === activeSessionId) || sessions[0];
+  }, [sessions, activeSessionId]);
+
   const displayBoxes = useMemo(
-    () => getDisplayBoxes(activeSession),
+    () => (activeSession ? getDisplayBoxes(activeSession) : []),
     [activeSession]
   );
 
@@ -100,9 +114,10 @@ export const DoorprizeMachine = () => {
     return list[box.index] !== undefined;
   }).length;
 
-  const isSessionComplete = sessionWinnersCount === displayBoxes.length;
+  const isSessionComplete =
+    displayBoxes.length > 0 && sessionWinnersCount === displayBoxes.length;
 
-  const handleStartDraw = () => {
+  const handleStartDraw = async () => {
     if (isAnimationPlaying) return;
 
     // 1. Identify needed slots
@@ -120,6 +135,40 @@ export const DoorprizeMachine = () => {
 
     if (slotsToFill.length === 0) return;
 
+    // Constraint: Minimal prize per batch draw is 4 prize
+    // However, if we are just completing a session that has fewer leftovers, we probably should allow it?
+    // User said: "minimal prize per batch draw is 4 prize".
+    // Does this mean a SESSION must have 4 prizes? Or we can't draw if remaining < 4?
+    // "including session (for batch draw prize)"
+    // "minimal prize per batch draw is 4 prize, and minimal single draw is 1 prize."
+    // This usually means if we are doing a "Batch Draw" (filling multiple slots), we need at least 4.
+    // If a session has 3 prizes, is it a batch draw?
+    // Let's assume: If the session has total prizes >= 4, it's a batch session.
+    // Use case: Grand prize usually 1. Session prizes usually many (5, 10).
+    // So if slotsToFill < 4, is it allowed?
+    // If the session *definition* has < 4 prizes, maybe it's treated as single draws?
+    // Let's enforce: If this is a simultaneous draw of ALL remaining slots, and the total session size was intended to be a batch...
+    // Let's interpret strict: "minimal prize per batch draw is 4".
+    // If we are drawing > 1 prize at once, it must be >= 4?
+    // Or does it mean we can't define a session with 2 or 3 prizes?
+    // "minimal prize per batch draw is 4 prize" -> likely means we draw 4+ at once.
+    // But here we draw ALL slotsToFill at once.
+    // So if slotsToFill < 4 and slotsToFill > 1, maybe block?
+    // But if we have 5 prizes, draw 4, 1 left. The last 1 is a single draw.
+    // So:
+    // If slotsToFill > 1 AND slotsToFill < 4 -> Block?
+    // "minimal single draw is 1 prize" -> implied.
+    // Let's implemented: If drawing > 1, must be >= 4.
+    // So you can draw 1 (Single), or 4+ (Batch). You cannot draw 2 or 3 at once.
+    // if (slotsToFill.length > 1 && slotsToFill.length < 4) {
+    //   alert(
+    //     "Batch draw constraint: limit minimal 4 prizes per draw. (You have " +
+    //     slotsToFill.length +
+    //     " prizes pending)"
+    //   );
+    //   return;
+    // }
+
     if (availableCandidates.length < slotsToFill.length) {
       alert(
         `Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`
@@ -127,8 +176,8 @@ export const DoorprizeMachine = () => {
       return;
     }
 
-    // 2. Shuffle candidates and pick winners
-    const shuffled = fisherYatesShuffle(availableCandidates);
+    // 2. Shuffle candidates and pick winners (using Random.org)
+    const shuffled = await shuffleWithRandomOrg(availableCandidates);
     const allocatedWinners: { prizeId: string; name: string }[] = [];
 
     slotsToFill.forEach((slot, idx) => {
@@ -189,7 +238,7 @@ export const DoorprizeMachine = () => {
     });
   };
 
-  const handleConfirmReshuffle = () => {
+  const handleConfirmReshuffle = async () => {
     if (!reshuffleTarget) return;
 
     // 1. Get pool of candidates excluding ALL current winners (including the one being replaced,
@@ -208,8 +257,8 @@ export const DoorprizeMachine = () => {
       return;
     }
 
-    // 2. Pick a new winner
-    const shuffled = fisherYatesShuffle(availableCandidates);
+    // 2. Pick a new winner (using Random.org)
+    const shuffled = await shuffleWithRandomOrg(availableCandidates);
     const newWinner = shuffled[0];
 
     // 3. Animate ONLY this box
@@ -258,6 +307,7 @@ export const DoorprizeMachine = () => {
   // Minimum base of 2000s just to be safe, but typically maxIndex is small (0-4) so 9000-2000=7000 is fine.
   const dynamicBaseDuration = Math.max(3000, 9000 - maxDrawingIndex * 500);
 
+  /* Main Draw Area */
   return (
     <div className="h-screen flex flex-col w-full">
       {/* Session Tabs */}
@@ -275,155 +325,161 @@ export const DoorprizeMachine = () => {
         </div>
       </div>
 
-      {/* Main Draw Area */}
       <div className="p-4 overflow-y-auto min-h-[500px]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center space-x-4 mb-6">
-            <div>
-              <h2 className="text-xl uppercase font-bold text-white">
-                {activeSession.name}
-              </h2>
-              <p className="text-slate-300 mt-1 text-sm">
-                <span>{availableCandidates.length} potential winners left</span>
-                <br />
-                <span>{displayBoxes.length}</span> Items
-              </p>
-            </div>
+        {!activeSession ? (
+          <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
+            <AlertCircle className="w-16 h-16 mb-4 opacity-20" />
+            <h2 className="text-xl font-semibold mb-2">No Active Session</h2>
+            <p>Please add prizes in the Prize Manager below.</p>
+          </div>
+        ) : (
+          <div className="min-w-5xl max-w-6xl mx-auto">
+            <div className="flex items-center justify-between space-x-4 mb-6">
+              <div>
+                <h2 className="text-xl uppercase font-bold text-white">
+                  {activeSession.name}
+                </h2>
+                <p className="text-slate-300 mt-1 text-sm">
+                  <span>{availableCandidates.length} potential winners left</span>
+                  <br />
+                  <span>{displayBoxes.length}</span> Items
+                </p>
+              </div>
 
-            <div className="flex p-4 gap-2 m-3 border border-slate-600 z-10 shadow-sm rounded-full">
-              {PRIZE_DATA.map((session) => (
-                <button
-                  key={session.id}
-                  onClick={() => setActiveSessionId(session.id)}
-                  disabled={isAnimationPlaying}
+              <div className="flex p-4 gap-2 m-3 border border-slate-600 z-10 shadow-sm rounded-full overflow-x-auto">
+                {sessions.map((session) => (
+                  <button
+                    key={session.id}
+                    onClick={() => setActiveSessionId(session.id)}
+                    disabled={isAnimationPlaying}
+                    className={cn(
+                      "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
+                      activeSessionId === session.id
+                        ? "bg-blue-500 text-white shadow-md"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    )}
+                  >
+                    {session.name}
+                    {/* Show progress dot */}
+                    {(() => {
+                      const sBoxes = getDisplayBoxes(session);
+                      const sCompleted =
+                        sBoxes.length > 0 &&
+                        sBoxes.every((b) => (winners[b.prize.id] || [])[b.index]);
+                      return sCompleted ? (
+                        <Check className="ml-1 size-3 text-green-400" />
+                      ) : null;
+                    })()}
+                  </button>
+                ))}
+                {/* <div className="mr-3 flex items-center text-white">
+                  <Popover>
+                    <PopoverTrigger className="cursor-pointer">
+                      <Grip className="size-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="flex justify-center items-center h-[140px] ">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isAnimationPlaying}
+                            className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            Reset Prizes
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will clear all winners for ALL sessions. This
+                              action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                resetDraw();
+                              }}
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              Confirm Reset
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </PopoverContent>
+                  </Popover>
+                </div> */}
+              </div>
+
+              {!isSessionComplete && (
+                <Button
+                  size="lg"
+                  onClick={handleStartDraw}
+                  disabled={
+                    isAnimationPlaying || availableCandidates.length === 0
+                  }
                   className={cn(
-                    "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
-                    activeSessionId === session.id
-                      ? "bg-blue-500 text-white shadow-md"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
+                    isAnimationPlaying
+                      ? "bg-yellow-500 scale-95"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
                   )}
                 >
-                  {session.name}
-                  {/* Show progress dot */}
-                  {(() => {
-                    const sBoxes = getDisplayBoxes(session);
-                    const sCompleted = sBoxes.every(
-                      (b) => (winners[b.prize.id] || [])[b.index]
-                    );
-                    return sCompleted ? (
-                      <Check className="ml-1 size-3 text-green-400" />
-                    ) : null;
-                  })()}
-                </button>
-              ))}
-              <div className="flex-1"></div>
-              <div className="mr-3 flex items-center text-white">
-                <Popover>
-                  <PopoverTrigger className="cursor-pointer">
-                    <Grip className="size-5" />
-                  </PopoverTrigger>
-                  <PopoverContent className="flex justify-center items-center h-[140px] ">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={isAnimationPlaying}
-                          className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
-                        >
-                          <RotateCcw className="w-4 h-4 mr-2" />
-                          Reset Prizes
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will clear all winners for ALL sessions. This
-                            action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => {
-                              resetDraw();
-                            }}
-                            className="bg-red-500 hover:bg-red-600"
-                          >
-                            Confirm Reset
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                  {isAnimationPlaying ? (
+                    <span className="flex items-center animate-pulse">
+                      Running Draw...
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <Play className="fill-current w-6 h-6 mr-2" />
+                      START DRAW
+                    </span>
+                  )}
+                </Button>
+              )}
+              {isSessionComplete && (
+                <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
+                  <Trophy className="w-6 h-6 mr-2" />
+                  Draw Complete
+                </div>
+              )}
             </div>
 
-            {!isSessionComplete && (
-              <Button
-                size="lg"
-                onClick={handleStartDraw}
-                disabled={
-                  isAnimationPlaying || availableCandidates.length === 0
-                }
-                className={cn(
-                  "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
-                  isAnimationPlaying
-                    ? "bg-yellow-500 scale-95"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
-                )}
+            {/* Boxes Grid */}
+            <div className="h-[60vh] flex items-center justify-center">
+              <div
+                title="prize boxes"
+                className="flex flex-wrap items-center justify-center gap-2"
               >
-                {isAnimationPlaying ? (
-                  <span className="flex items-center animate-pulse">
-                    Running Draw...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Play className="fill-current w-6 h-6 mr-2" />
-                    START DRAW
-                  </span>
-                )}
-              </Button>
-            )}
-            {isSessionComplete && (
-              <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
-                <Trophy className="w-6 h-6 mr-2" />
-                Draw Complete
+                {displayBoxes.map((box, idx) => {
+                  const prizeWinners = winners[box.prize.id] || [];
+                  const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
+
+                  return (
+                    <PrizeBox
+                      key={box.key}
+                      activeSessionId={activeSessionId}
+                      prizeName={box.prize.name}
+                      winnerName={winnerName}
+                      candidates={availableCandidates}
+                      // Only roll if explicitly part of current draw
+                      isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
+                      delay={idx} // Stagger effect
+                      baseDuration={dynamicBaseDuration}
+                      onReshuffle={() => handleReshuffleClick(box)}
+                      allowReshuffle={activeSession.allowReshuffle}
+                    />
+                  );
+                })}
               </div>
-            )}
-          </div>
-
-          {/* Boxes Grid */}
-          <div className="h-[60vh] flex items-center justify-center">
-            <div
-              title="prize boxes"
-              // className="pt-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-12"
-              className="flex flex-wrap items-center justify-center gap-2"
-            >
-              {displayBoxes.map((box, idx) => {
-                const prizeWinners = winners[box.prize.id] || [];
-                const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
-
-                return (
-                  <PrizeBox
-                    key={box.key}
-                    activeSessionId={activeSessionId}
-                    prizeName={box.prize.name}
-                    winnerName={winnerName}
-                    candidates={availableCandidates}
-                    // Only roll if explicitly part of current draw
-                    isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
-                    delay={idx} // Stagger effect
-                    baseDuration={dynamicBaseDuration}
-                    onReshuffle={() => handleReshuffleClick(box)}
-                  />
-                );
-              })}
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Reshuffle Confirmation Dialog */}

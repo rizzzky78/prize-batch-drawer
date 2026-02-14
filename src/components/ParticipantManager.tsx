@@ -19,16 +19,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ParticipantImporter } from "./ParticipantImporter";
 
 export const ParticipantManager = () => {
   const [name, setName] = useState("");
   const {
     participants,
     addParticipant,
+    addParticipants,
     removeParticipant,
     resetParticipants,
     isLocked,
+    winners,
   } = useStore();
+
+  const allWinners = new Set<string>();
+
+  Object.values(winners).forEach((list) => {
+    if (Array.isArray(list)) {
+      list.forEach((w) => allWinners.add(String(w)));
+    }
+  });
 
   const handleAdd = () => {
     const trimmedName = name.trim();
@@ -42,6 +53,10 @@ export const ParticipantManager = () => {
       addParticipant(trimmedName);
       setName("");
     }
+  };
+
+  const handleImport = (names: string[]) => {
+    addParticipants(names);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -61,59 +76,57 @@ export const ParticipantManager = () => {
               {participants.length} total
             </Badge>
           </CardTitle>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={isLocked || participants.length === 0}
-                className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
-                title="Reset all participants"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently remove all
-                  participants from the list.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={resetParticipants}
-                  className="bg-red-500 hover:bg-red-600"
+          <div className="flex items-center gap-2">
+            <ParticipantImporter onImport={handleImport} />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={participants.length === 0}
+                  className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
+                  title="Reset all participants"
                 >
-                  Yes, Reset All
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently remove all
+                    non-winning participants from the list. Winners will remain.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={resetParticipants}
+                    className="bg-red-500 hover:bg-red-600"
+                  >
+                    Yes, Reset All
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="flex-1 pt-10 flex flex-col gap-4 overflow-hidden">
         <div className="flex gap-2">
           <Input
-            placeholder={
-              isLocked
-                ? "Registration closed"
-                : "Enter participant name... and then press Enter to entry"
-            }
+            placeholder="Enter participant name... and then press Enter to entry"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isLocked}
             className="flex-1"
           />
           <Button
             variant="outline"
             onClick={handleAdd}
-            disabled={isLocked || !name.trim()}
+            disabled={!name.trim()}
             size="icon"
           >
             <Plus className="w-4 h-4" />
@@ -128,26 +141,38 @@ export const ParticipantManager = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {participants.map((p, idx) => (
-                <div
-                  key={`${p}-${idx}`}
-                  className="group flex items-center justify-between bg-slate-50 border rounded-none px-3 py-2 text-sm hover:border-slate-300 transition-colors"
-                >
-                  <span className="truncate">{p}</span>
-                  {!isLocked && (
-                    <button
-                      onClick={() => removeParticipant(p)}
-                      className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              ))}
+              {participants.map((p, idx) => {
+                // Check if this participant is a winner using the precomputed set
+                const isWinner = allWinners.has(p);
+
+                return (
+                  <div
+                    key={`${p}-${idx}`}
+                    className={`group flex items-center justify-between px-3 py-2 text-sm border transition-colors ${isWinner
+                      ? "bg-amber-50 border-amber-500 text-amber-900 shadow-sm font-medium"
+                      : "bg-slate-50 border-slate-200 hover:border-slate-300"
+                      }`}
+                  >
+                    <span className="truncate flex items-center gap-1.5">
+                      {isWinner && <span className="text-amber-500 text-xs">👑</span>}
+                      {p}
+                    </span>
+                    {!isWinner && (
+                      <button
+                        onClick={() => removeParticipant(p)}
+                        className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove participant"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </ScrollArea>
       </CardContent>
-    </Card>
+    </Card >
   );
 };

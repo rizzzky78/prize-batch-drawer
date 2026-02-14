@@ -9,6 +9,7 @@ export type SessionData = {
   id: string;
   name: string;
   prizes: PrizeItem[];
+  allowReshuffle?: boolean;
 };
 
 export const PRIZE_DATA: SessionData[] = [
@@ -87,6 +88,7 @@ export const PRIZE_DATA: SessionData[] = [
   {
     id: "grand-1",
     name: "Grand 5",
+    allowReshuffle: true,
     prizes: [
       {
         id: "g1-1",
@@ -99,6 +101,7 @@ export const PRIZE_DATA: SessionData[] = [
   {
     id: "grand-2",
     name: "Grand 4",
+    allowReshuffle: true,
     prizes: [
       {
         id: "g2-1",
@@ -111,6 +114,7 @@ export const PRIZE_DATA: SessionData[] = [
   {
     id: "grand-3",
     name: "Grand 3",
+    allowReshuffle: true,
     prizes: [
       {
         id: "g3-1",
@@ -123,6 +127,7 @@ export const PRIZE_DATA: SessionData[] = [
   {
     id: "super-1",
     name: "Grand 2",
+    allowReshuffle: true,
     prizes: [
       {
         id: "sg1-1",
@@ -135,6 +140,7 @@ export const PRIZE_DATA: SessionData[] = [
   {
     id: "super-2",
     name: "Grand 1",
+    allowReshuffle: true,
     prizes: [
       {
         id: "sg2-1",

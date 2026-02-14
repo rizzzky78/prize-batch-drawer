@@ -13,6 +13,7 @@ interface PrizeBoxProps {
   onFinish?: () => void;
   onReshuffle?: () => void;
   activeSessionId: string;
+  allowReshuffle?: boolean;
 }
 
 export const PrizeBox = ({
@@ -25,6 +26,7 @@ export const PrizeBox = ({
   activeSessionId,
   onFinish,
   onReshuffle,
+  allowReshuffle,
 }: PrizeBoxProps) => {
   const [displayedName, setDisplayedName] = useState<string>("???");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,8 +76,8 @@ export const PrizeBox = ({
           isRolling
             ? "border-yellow-400 bg-yellow-50"
             : winnerName
-            ? "border-green-500 bg-green-50"
-            : "border-slate-200"
+              ? "border-green-500 bg-green-50"
+              : "border-slate-200"
         )}
       >
         <div className="absolute top-3 left-0 w-full text-center flex justify-center">
@@ -100,8 +102,7 @@ export const PrizeBox = ({
       {/* Reshuffle Button for Grand/Super Grand */}
       {winnerName &&
         !isRolling &&
-        (activeSessionId.startsWith("grand") ||
-          activeSessionId.startsWith("super")) &&
+        allowReshuffle &&
         onReshuffle && (
           <div className="flex justify-center mt-2 transition-all duration-300">
             <button

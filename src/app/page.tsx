@@ -1,6 +1,7 @@
 
 import { DoorprizeMachine } from "@/components/DoorprizeMachine";
 import { ParticipantManager } from "@/components/ParticipantManager";
+import { PrizeManager } from "@/components/PrizeManager";
 import Image from "next/image";
 
 
@@ -12,9 +13,9 @@ export const metadata = {
 export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 font-sans">
-      <header className="absolute top-0 left-0 right-0 z-50">
+      <header className="sticky top-0 left-0 right-0 z-50">
         <div className="w-full flex justify-between">
-          <div className="pl-8 pr-20 pt-6 pb-4 rounded-br-[100px] bg-white flex items-center">
+          <div className="pl-8 pr-16 h-16 rounded-br-[100px] bg-white flex items-center">
             <Image
               src="/Logo-OM-70.png"
               alt="Logo"
@@ -25,7 +26,7 @@ export default function Home() {
               className="w-30 object-contain mt-3"
             />
           </div>
-          <div className="pr-8 pl-20 pt-6 pb-4 rounded-bl-[100px] bg-white flex items-center">
+          <div className="pr-8 pl-16 pt-0 h-16 rounded-bl-[100px] bg-white flex items-center">
             <Image
               src="/logo-kpi-warna-besar.png"
               alt="Logo"
@@ -43,10 +44,15 @@ export default function Home() {
         <DoorprizeMachine />
       </section>
 
-      {/* Bottom Section: Participant Manager (Fixed height or smaller portion) */}
-      <section className="min-h-screen z-20">
-        <div className="w-full max-w-7xl mx-auto">
-          <ParticipantManager />
+      {/* Bottom Section: Management (Fixed height or smaller portion) */}
+      <section className="min-h-screen z-20 pb-20">
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-1 gap-2">
+          <div className="min-h-[400px]">
+            <PrizeManager />
+          </div>
+          <div className="min-h-screen">
+            <ParticipantManager />
+          </div>
         </div>
       </section>
 
