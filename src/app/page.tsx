@@ -17,18 +17,18 @@ export default function Home() {
         <div className="w-full flex justify-between">
           <div className="pl-8 pr-16 h-16 rounded-br-[100px] bg-white flex items-center">
             <Image
-              src="/Logo-OM-70.png"
+              src="/logo-production-1-black-refined.png"
               alt="Logo"
               width={100}
               height={100}
               quality={100}
               priority
-              className="w-30 object-contain mt-3"
+              className="w-30 scale-80 mt-1 object-contain"
             />
           </div>
           <div className="pr-8 pl-16 pt-0 h-16 rounded-bl-[100px] bg-white flex items-center">
             <Image
-              src="/logo-kpi-warna-besar.png"
+              src="/pertamina_patra_niaga_logo.svg"
               alt="Logo"
               width={100}
               height={100}
