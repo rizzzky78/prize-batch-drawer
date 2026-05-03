@@ -133,7 +133,7 @@ export const ParticipantManager = () => {
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 -mx-4 px-4 h-[80vh]">
+        <ScrollArea className="-mx-4 px-4 h-[60vh]">
           {participants.length === 0 ? (
             <div className="h-[400px] flex flex-col items-center justify-center py-8 text-slate-400 text-sm italic">
               <Users className="w-12 h-12 mb-2 opacity-20" />
@@ -148,7 +148,7 @@ export const ParticipantManager = () => {
                 return (
                   <div
                     key={`${p}-${idx}`}
-                    className={`group flex items-center justify-between px-3 py-2 text-sm border transition-colors ${isWinner
+                    className={`group rounded-lg flex items-center justify-between px-3 py-2 text-sm border transition-colors ${isWinner
                       ? "bg-amber-50 border-amber-500 text-amber-900 shadow-sm font-medium"
                       : "bg-slate-50 border-slate-200 hover:border-slate-300"
                       }`}

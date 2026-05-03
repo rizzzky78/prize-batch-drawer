@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Trash2, Plus, Gift, RotateCcw, Package, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Trash2, Plus, Gift, RotateCcw, Package, ChevronDown, ChevronUp, Check, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -30,6 +31,7 @@ export const PrizeManager = () => {
   const [prizeName, setPrizeName] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [allowReshuffle, setAllowReshuffle] = useState(false);
+  const [groupWinners, setGroupWinners] = useState(false);
 
   const sessions = useStore((state) => state.sessions);
   const addPrize = useStore((state) => state.addPrize);
@@ -48,7 +50,7 @@ export const PrizeManager = () => {
     const qty = parseInt(quantity);
     if (isNaN(qty) || qty < 1) return;
 
-    addPrize(sessionName.trim(), prizeName.trim(), qty, allowReshuffle);
+    addPrize(sessionName.trim(), prizeName.trim(), qty, allowReshuffle, groupWinners);
     setPrizeName("");
     setQuantity("1");
     // Keep session name and reshuffle setting for faster entry
@@ -72,6 +74,7 @@ export const PrizeManager = () => {
     const existingSession = sessions.find(s => s.name === name);
     if (existingSession) {
       setAllowReshuffle(!!existingSession.allowReshuffle);
+      setGroupWinners(!!existingSession.groupWinners);
     }
   };
 
@@ -156,10 +159,10 @@ export const PrizeManager = () => {
       </CardHeader>
 
       <CardContent className="flex-1 pt-4 flex flex-col gap-4 overflow-hidden">
-        {/* Input Form */}
+
         {/* Input Form */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-          <div className="col-span-1 md:col-span-4 flex flex-col gap-2">
+          <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
             <Label htmlFor="session-name" className="text-white">Session Name</Label>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
@@ -174,7 +177,10 @@ export const PrizeManager = () => {
                       // Reset/Update reshuffle if name changes?
                       // Better to just let them set it, or try to auto-find if exact match
                       const existing = sessions.find(s => s.name === e.target.value);
-                      if (existing) setAllowReshuffle(!!existing.allowReshuffle);
+                      if (existing) {
+                        setAllowReshuffle(!!existing.allowReshuffle);
+                        setGroupWinners(!!existing.groupWinners);
+                      }
                     }}
                     onFocus={() => setOpen(true)}
                     className="bg-slate-900/20 border-slate-700 text-slate-100 placeholder:text-slate-500 pr-8"
@@ -212,7 +218,7 @@ export const PrizeManager = () => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="col-span-1 md:col-span-4 flex flex-col gap-2">
+          <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
             <Label htmlFor="prize-name" className="text-white">Prize Name</Label>
             <Input
               id="prize-name"
@@ -237,20 +243,46 @@ export const PrizeManager = () => {
             />
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex flex-col gap-2 items-start justify-center pb-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="allowReshuffle"
-                className="h-4 w-4 rounded border-slate-700 bg-slate-900/20 text-blue-600 focus:ring-blue-600 focus:ring-offset-slate-900"
-                checked={allowReshuffle}
-                onChange={(e) => setAllowReshuffle(e.target.checked)}
-              />
-              <Label htmlFor="allowReshuffle" className="text-white cursor-pointer text-xs">Allow Reshuffle</Label>
+          <div className="col-span-1 -mb-1.5 md:col-span-2 flex flex-col gap-2 items-start justify-center pb-2">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center space-x-2">
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="allowReshuffle"
+                      className="h-4 w-4 rounded border-slate-700 bg-slate-900/20 text-blue-600 focus:ring-blue-600 focus:ring-offset-slate-900"
+                      checked={allowReshuffle}
+                      onChange={(e) => setAllowReshuffle(e.target.checked)}
+                    />
+                    <Label htmlFor="allowReshuffle" className="text-white cursor-pointer text-xs">Allow Reshuffle</Label>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[250px] text-xs">
+                    <p>Allows redrawing a winner for this prize during the draw session.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="groupWinners"
+                      className="h-4 w-4 rounded border-slate-700 bg-slate-900/20 text-blue-600 focus:ring-blue-600 focus:ring-offset-slate-900"
+                      checked={groupWinners}
+                      onChange={(e) => setGroupWinners(e.target.checked)}
+                    />
+                    <Label htmlFor="groupWinners" className="text-white cursor-pointer text-xs">Group Winners</Label>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[250px] text-xs">
+                    <p>Groups winners of the same prize into a single visual box instead of creating a separate box for each item.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-12 flex justify-end">
+          <div className="col-span-1 md:col-span-2 flex justify-end">
             <Button
               variant="secondary"
               // size="icon"

@@ -6,7 +6,7 @@ import { SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle } from "lucide-react";
+import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { shuffleWithRandomOrg } from "@/lib/random";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -42,6 +42,7 @@ export const DoorprizeMachine = () => {
   const [activeSessionId, setActiveSessionId] = useState<string>("");
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
   const [drawingKeys, setDrawingKeys] = useState<Set<string>>(new Set());
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
   // Reshuffle State
   const [reshuffleTarget, setReshuffleTarget] = useState<{
@@ -68,6 +69,12 @@ export const DoorprizeMachine = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isAudioEnabled;
+    }
+  }, [isAudioEnabled]);
 
   useEffect(() => {
     if (isAnimationPlaying) {
@@ -309,17 +316,17 @@ export const DoorprizeMachine = () => {
 
   /* Main Draw Area */
   return (
-    <div className="h-screen flex flex-col w-full">
+    <div className="min-h-screen flex flex-col w-full">
       {/* Session Tabs */}
-      <div className="max-w-7xl mx-auto">
+      <div className="px-10 mx-auto">
         <div className="pt-14 relative group">
           <input
             value={useStore((state) => state.eventName)}
             onChange={(e) => useStore.getState().setEventName(e.target.value)}
-            className="text-5xl text-center font-semibold text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full"
+            className="text-5xl text-center font-semibold font-excon text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full"
             placeholder="Edit Label Acara"
           />
-          <span className="absolute top-0 -right-6 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
+          <span className="absolute top-0 -right-6 font-excon! opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
             <Grip className="w-4 h-4" />
           </span>
         </div>
@@ -333,7 +340,7 @@ export const DoorprizeMachine = () => {
             <p>Please add prizes in the Prize Manager below.</p>
           </div>
         ) : (
-          <div className="min-w-5xl max-w-6xl mx-auto">
+          <div className="min-w-5xl w-full px-10 mx-auto">
             <div className="flex items-center justify-between space-x-4 mb-6">
               <div>
                 <h2 className="text-xl uppercase font-bold text-white">
@@ -346,136 +353,134 @@ export const DoorprizeMachine = () => {
                 </p>
               </div>
 
-              <div className="flex p-4 gap-2 m-3 border border-slate-600 z-10 shadow-sm rounded-full overflow-x-auto">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => setActiveSessionId(session.id)}
-                    disabled={isAnimationPlaying}
+              <div className="flex items-center space-x-4">
+                <div className="flex p-[14px] gap-2 m-3 border border-slate-600/50 z-10 shadow-sm rounded-full overflow-x-auto">
+                  {sessions.map((session) => (
+                    <button
+                      key={session.id}
+                      onClick={() => setActiveSessionId(session.id)}
+                      disabled={isAnimationPlaying}
+                      className={cn(
+                        "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
+                        activeSessionId === session.id
+                          ? "bg-blue-500 text-white shadow-md"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      )}
+                    >
+                      {session.name}
+                      {/* Show progress dot */}
+                      {(() => {
+                        const sBoxes = getDisplayBoxes(session);
+                        const sCompleted =
+                          sBoxes.length > 0 &&
+                          sBoxes.every((b) => (winners[b.prize.id] || [])[b.index]);
+                        return sCompleted ? (
+                          <Check className="ml-1 size-3 text-green-400" />
+                        ) : null;
+                      })()}
+                    </button>
+                  ))}
+                </div>
+
+                {!isSessionComplete && (
+                  <Button
+                    size="lg"
+                    onClick={handleStartDraw}
+                    disabled={
+                      isAnimationPlaying || availableCandidates.length === 0
+                    }
                     className={cn(
-                      "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
-                      activeSessionId === session.id
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
+                      isAnimationPlaying
+                        ? "bg-yellow-500 scale-95"
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
                     )}
                   >
-                    {session.name}
-                    {/* Show progress dot */}
-                    {(() => {
-                      const sBoxes = getDisplayBoxes(session);
-                      const sCompleted =
-                        sBoxes.length > 0 &&
-                        sBoxes.every((b) => (winners[b.prize.id] || [])[b.index]);
-                      return sCompleted ? (
-                        <Check className="ml-1 size-3 text-green-400" />
-                      ) : null;
-                    })()}
-                  </button>
-                ))}
-                {/* <div className="mr-3 flex items-center text-white">
-                  <Popover>
-                    <PopoverTrigger className="cursor-pointer">
-                      <Grip className="size-5" />
-                    </PopoverTrigger>
-                    <PopoverContent className="flex justify-center items-center h-[140px] ">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={isAnimationPlaying}
-                            className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
-                          >
-                            <RotateCcw className="w-4 h-4 mr-2" />
-                            Reset Prizes
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will clear all winners for ALL sessions. This
-                              action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => {
-                                resetDraw();
-                              }}
-                              className="bg-red-500 hover:bg-red-600"
-                            >
-                              Confirm Reset
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </PopoverContent>
-                  </Popover>
-                </div> */}
+                    {isAnimationPlaying ? (
+                      <span className="flex items-center animate-pulse">
+                        Running Draw...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <Play className="fill-current w-6 h-6 mr-2" />
+                        DRAW
+                      </span>
+                    )}
+                  </Button>
+                )}
+                {isSessionComplete && (
+                  <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
+                    <Trophy className="w-6 h-6 mr-2" />
+                    Draw Complete
+                  </div>
+                )}
               </div>
-
-              {!isSessionComplete && (
-                <Button
-                  size="lg"
-                  onClick={handleStartDraw}
-                  disabled={
-                    isAnimationPlaying || availableCandidates.length === 0
-                  }
-                  className={cn(
-                    "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
-                    isAnimationPlaying
-                      ? "bg-yellow-500 scale-95"
-                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
-                  )}
-                >
-                  {isAnimationPlaying ? (
-                    <span className="flex items-center animate-pulse">
-                      Running Draw...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <Play className="fill-current w-6 h-6 mr-2" />
-                      START DRAW
-                    </span>
-                  )}
-                </Button>
-              )}
-              {isSessionComplete && (
-                <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
-                  <Trophy className="w-6 h-6 mr-2" />
-                  Draw Complete
-                </div>
-              )}
             </div>
 
             {/* Boxes Grid */}
-            <div className="h-[60vh] flex items-center justify-center">
+            <div className="min-h-[60vh] flex items-center justify-center">
               <div
                 title="prize boxes"
-                className="flex flex-wrap items-center justify-center gap-2"
+                className="flex flex-wrap items-start justify-center gap-2"
               >
-                {displayBoxes.map((box, idx) => {
-                  const prizeWinners = winners[box.prize.id] || [];
-                  const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
+                {activeSession.groupWinners ? (
+                  Array.from(new Set(displayBoxes.map(b => b.prize.id))).map((prizeId, idx) => {
+                    const boxesForPrize = displayBoxes.filter(b => b.prize.id === prizeId);
+                    const prize = boxesForPrize[0].prize;
+                    const prizeWinners = winners[prizeId] || [];
 
-                  return (
-                    <PrizeBox
-                      key={box.key}
-                      activeSessionId={activeSessionId}
-                      prizeName={box.prize.name}
-                      winnerName={winnerName}
-                      candidates={availableCandidates}
-                      // Only roll if explicitly part of current draw
-                      isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
-                      delay={idx} // Stagger effect
-                      baseDuration={dynamicBaseDuration}
-                      onReshuffle={() => handleReshuffleClick(box)}
-                      allowReshuffle={activeSession.allowReshuffle}
-                    />
-                  );
-                })}
+                    const winnerNames = Array.from({ length: prize.quantity }).map((_, i) => prizeWinners[i]);
+                    const isRolling = isAnimationPlaying && boxesForPrize.some(b => drawingKeys.has(b.key));
+
+                    const handleGroupReshuffle = (indexInGroup?: number) => {
+                      if (indexInGroup !== undefined) {
+                        const targetBox = boxesForPrize[indexInGroup];
+                        if (targetBox) handleReshuffleClick(targetBox);
+                      } else {
+                        // Fallback if quantity is 1 but groupWinners is true
+                        const targetBox = boxesForPrize[0];
+                        if (targetBox) handleReshuffleClick(targetBox);
+                      }
+                    };
+
+                    return (
+                      <PrizeBox
+                        key={prizeId}
+                        activeSessionId={activeSessionId}
+                        prizeName={prize.name}
+                        winnerName={winnerNames}
+                        quantity={prize.quantity}
+                        candidates={availableCandidates}
+                        isRolling={isRolling}
+                        delay={idx}
+                        baseDuration={dynamicBaseDuration}
+                        onReshuffle={handleGroupReshuffle}
+                        allowReshuffle={activeSession.allowReshuffle}
+                      />
+                    );
+                  })
+                ) : (
+                  displayBoxes.map((box, idx) => {
+                    const prizeWinners = winners[box.prize.id] || [];
+                    const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
+
+                    return (
+                      <PrizeBox
+                        key={box.key}
+                        activeSessionId={activeSessionId}
+                        prizeName={box.prize.name}
+                        winnerName={winnerName}
+                        candidates={availableCandidates}
+                        // Only roll if explicitly part of current draw
+                        isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
+                        delay={idx} // Stagger effect
+                        baseDuration={dynamicBaseDuration}
+                        onReshuffle={() => handleReshuffleClick(box)}
+                        allowReshuffle={activeSession.allowReshuffle}
+                      />
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -507,6 +512,21 @@ export const DoorprizeMachine = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Audio Toggle Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="fixed bottom-6 right-6 rounded-full size-8 bg-slate-800/80 backdrop-blur-sm border-slate-700 text-white hover:bg-slate-700 shadow-xl z-50 cursor-pointer transition-all hover:scale-105"
+        onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+        title={isAudioEnabled ? "Mute Audio" : "Unmute Audio"}
+      >
+        {isAudioEnabled ? (
+          <Volume2 className="w-3 h-3" />
+        ) : (
+          <VolumeX className="w-3 h-3 text-slate-400" />
+        )}
+      </Button>
     </div>
   );
 };

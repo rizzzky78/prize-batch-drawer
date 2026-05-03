@@ -10,6 +10,7 @@ export type SessionData = {
   name: string;
   prizes: PrizeItem[];
   allowReshuffle?: boolean;
+  groupWinners?: boolean;
 };
 
 export const PRIZE_DATA: SessionData[] = [

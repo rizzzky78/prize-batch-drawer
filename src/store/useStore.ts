@@ -28,7 +28,7 @@ interface AppState {
 
   // Prize Management
   sessions: SessionData[];
-  addPrize: (sessionName: string, name: string, quantity: number, allowReshuffle: boolean) => void;
+  addPrize: (sessionName: string, name: string, quantity: number, allowReshuffle: boolean, groupWinners: boolean) => void;
   removePrize: (prizeId: string) => void;
   resetPrizes: () => void;
 }
@@ -129,7 +129,7 @@ export const useStore = create<AppState>()(
           };
         }),
 
-      addPrize: (sessionName, name, quantity, allowReshuffle) =>
+      addPrize: (sessionName, name, quantity, allowReshuffle, groupWinners) =>
         set((state) => {
           const safeSessionId = sessionName
             .toLowerCase()
@@ -155,6 +155,7 @@ export const useStore = create<AppState>()(
             newSessions[existingSessionIndex] = {
               ...newSessions[existingSessionIndex],
               allowReshuffle,
+              groupWinners,
               prizes: [...currentPrizes, newPrize],
             };
             return { sessions: newSessions };
@@ -163,6 +164,7 @@ export const useStore = create<AppState>()(
               id: safeSessionId || `session-${Date.now()}`,
               name: sessionName,
               allowReshuffle,
+              groupWinners,
               prizes: [newPrize],
             };
             return { sessions: [...state.sessions, newSession] };
