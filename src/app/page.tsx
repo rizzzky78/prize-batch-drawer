@@ -6,7 +6,7 @@ import Image from "next/image";
 
 
 export const metadata = {
-  title: "OM 70 Synergi Insani",
+  title: "Prodone Harmony | Pertamina Patra Niaga",
   description: "Doorprize Machine",
 }
 
