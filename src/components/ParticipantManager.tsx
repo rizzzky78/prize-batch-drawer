@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { useStore } from "@/store/useStore";
@@ -95,8 +95,9 @@ export const ParticipantManager = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently remove all
-                    non-winning participants from the list. Winners will remain.
+                    This action cannot be undone. This will permanently remove
+                    all non-winning participants from the list. Winners will
+                    remain.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -121,14 +122,9 @@ export const ParticipantManager = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1"
+            className="flex-1 bg-transparent border-primary text-white placeholder:text-white/50"
           />
-          <Button
-            variant="outline"
-            onClick={handleAdd}
-            disabled={!name.trim()}
-            size="icon"
-          >
+          <Button onClick={handleAdd} disabled={!name.trim()} size="icon">
             <Plus className="w-4 h-4" />
           </Button>
         </div>
@@ -148,13 +144,16 @@ export const ParticipantManager = () => {
                 return (
                   <div
                     key={`${p}-${idx}`}
-                    className={`group rounded-lg flex items-center justify-between px-3 py-2 text-sm border transition-colors ${isWinner
-                      ? "bg-amber-50 border-amber-500 text-amber-900 shadow-sm font-medium"
-                      : "bg-slate-50 border-slate-200 hover:border-slate-300"
-                      }`}
+                    className={`group rounded-lg flex items-center justify-between px-3 py-2 text-sm border transition-colors ${
+                      isWinner
+                        ? "bg-amber-50 border-amber-500 text-amber-900 shadow-sm font-medium"
+                        : "bg-slate-50 border-slate-200 hover:border-slate-300"
+                    }`}
                   >
                     <span className="truncate flex items-center gap-1.5">
-                      {isWinner && <span className="text-amber-500 text-xs">👑</span>}
+                      {isWinner && (
+                        <span className="text-amber-500 text-xs">👑</span>
+                      )}
                       {p}
                     </span>
                     {!isWinner && (
@@ -173,6 +172,6 @@ export const ParticipantManager = () => {
           )}
         </ScrollArea>
       </CardContent>
-    </Card >
+    </Card>
   );
 };

@@ -74,7 +74,7 @@ export const ParticipantImporter = ({
         const headerRow = jsonData[0] as string[];
         // Filter out empty headers and ensure they are strings
         const validHeaders = headerRow.filter(
-          (h) => typeof h === "string" && h.trim() !== ""
+          (h) => typeof h === "string" && h.trim() !== "",
         );
 
         if (validHeaders.length === 0) {
@@ -87,14 +87,16 @@ export const ParticipantImporter = ({
         setPreviewData(jsonData.slice(1, 6));
 
         // Auto-select if there's a column named "Name" or "Nama" (case insensitive)
-        const nameCol = validHeaders.find(h => /^(name|nama)$/i.test(h));
+        const nameCol = validHeaders.find((h) => /^(name|nama)$/i.test(h));
         if (nameCol) setSelectedColumn(nameCol);
       } else {
         setError("The Excel file appears to be empty.");
       }
     } catch (err) {
       console.error("Error parsing Excel file:", err);
-      setError("Failed to parse the Excel file. Please ensure it is a valid .xlsx file.");
+      setError(
+        "Failed to parse the Excel file. Please ensure it is a valid .xlsx file.",
+      );
     }
   };
 
@@ -138,13 +140,15 @@ export const ParticipantImporter = ({
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={(open) => {
-      setIsOpen(open);
-      if (!open) resetState();
-    }}>
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) resetState();
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
           size="sm"
           disabled={disabled}
           className="gap-2"
@@ -160,11 +164,11 @@ export const ParticipantImporter = ({
             <h4 className="font-medium leading-none">Import Participants</h4>
           </div>
 
-          <div className="rounded-md border border-slate-700 bg-slate-900/40">
+          <div className="rounded-md border border-slate-7000">
             <button
               type="button"
               onClick={() => setShowGuide((v) => !v)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-300"
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium"
             >
               <span className="flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
@@ -208,7 +212,10 @@ export const ParticipantImporter = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="file-upload" className="text-xs font-medium text-slate-500">
+            <Label
+              htmlFor="file-upload"
+              className="text-xs font-medium text-slate-500"
+            >
               1. Select Excel File
             </Label>
             <div className="flex gap-2">
@@ -236,11 +243,20 @@ export const ParticipantImporter = ({
                 2. Select Name Column
               </Label>
               <ScrollArea className="h-40 border rounded-md p-2 bg-black/90 text-white">
-                <RadioGroup value={selectedColumn} onValueChange={setSelectedColumn}>
+                <RadioGroup
+                  value={selectedColumn}
+                  onValueChange={setSelectedColumn}
+                >
                   {headers.map((header) => (
-                    <div key={header} className="flex items-center space-x-2 py-1">
+                    <div
+                      key={header}
+                      className="flex items-center space-x-2 py-1"
+                    >
                       <RadioGroupItem value={header} id={`col-${header}`} />
-                      <Label htmlFor={`col-${header}`} className="text-sm cursor-pointer font-normal">
+                      <Label
+                        htmlFor={`col-${header}`}
+                        className="text-sm cursor-pointer font-normal"
+                      >
                         {header}
                       </Label>
                     </div>
@@ -249,7 +265,8 @@ export const ParticipantImporter = ({
               </ScrollArea>
               {previewData.length > 0 && selectedColumn && (
                 <p className="text-xs text-slate-500 italic">
-                  Preview: {previewData[0]?.[selectedColumn] || "(no preview)"}, ...
+                  Preview: {previewData[0]?.[selectedColumn] || "(no preview)"},
+                  ...
                 </p>
               )}
             </div>

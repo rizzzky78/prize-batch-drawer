@@ -6,7 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -50,7 +54,7 @@ interface PrizeImporterProps {
   onImport: (
     entries: { sessionName: string; name: string; quantity: number }[],
     allowReshuffle: boolean,
-    groupWinners: boolean
+    groupWinners: boolean,
   ) => void;
   disabled?: boolean;
 }
@@ -115,7 +119,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
         header: 1,
       })[0] || []) as string[];
       const validHeaders = headerRow.filter(
-        (h) => typeof h === "string" && h.trim() !== ""
+        (h) => typeof h === "string" && h.trim() !== "",
       );
 
       if (validHeaders.length === 0) {
@@ -133,18 +137,20 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
       setShowGuide(false);
 
       setSessionCol(
-        findColumn(validHeaders, [/^(session|sesi|group|grup|kategori|category)$/i])
+        findColumn(validHeaders, [
+          /^(session|sesi|group|grup|kategori|category)$/i,
+        ]),
       );
       setNameCol(
-        findColumn(validHeaders, [/^(prize|hadiah|item|name|nama)$/i])
+        findColumn(validHeaders, [/^(prize|hadiah|item|name|nama)$/i]),
       );
       setQtyCol(
-        findColumn(validHeaders, [/^(qty|quantity|jumlah)$/i]) || NONE_VALUE
+        findColumn(validHeaders, [/^(qty|quantity|jumlah)$/i]) || NONE_VALUE,
       );
     } catch (err) {
       console.error("Error parsing Excel file:", err);
       setError(
-        "Failed to parse the Excel file. Please ensure it is a valid .xlsx file."
+        "Failed to parse the Excel file. Please ensure it is a valid .xlsx file.",
       );
     }
   };
@@ -166,7 +172,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
 
   const validRowIndexes = useMemo(
     () => parsedRows.filter((r) => r.valid).map((r) => r.idx),
-    [parsedRows]
+    [parsedRows],
   );
 
   const isSelected = (idx: number) => !excludedRows.has(idx);
@@ -190,21 +196,27 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
     });
   };
 
-  const allSelected = validRowIndexes.length > 0 && selectedCount === validRowIndexes.length;
+  const allSelected =
+    validRowIndexes.length > 0 && selectedCount === validRowIndexes.length;
 
   const toggleSelectAll = () => {
     setExcludedRows(allSelected ? new Set(validRowIndexes) : new Set());
   };
 
-  const handleColumnChange = (setter: (value: string) => void) => (value: string) => {
-    setter(value);
-    setExcludedRows(new Set());
-  };
+  const handleColumnChange =
+    (setter: (value: string) => void) => (value: string) => {
+      setter(value);
+      setExcludedRows(new Set());
+    };
 
   const handleImport = () => {
     const entries = parsedRows
       .filter((r) => r.valid && isSelected(r.idx))
-      .map((r) => ({ sessionName: r.session, name: r.name, quantity: r.quantity }));
+      .map((r) => ({
+        sessionName: r.session,
+        name: r.name,
+        quantity: r.quantity,
+      }));
 
     if (entries.length === 0) {
       setError("No rows selected to import.");
@@ -226,7 +238,6 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
     >
       <DialogTrigger asChild>
         <Button
-          variant="outline"
           size="sm"
           disabled={disabled}
           className="gap-2"
@@ -246,11 +257,11 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="rounded-md border border-slate-700 bg-slate-900/40">
+          <div className="rounded-md border border-slate-700">
             <button
               type="button"
               onClick={() => setShowGuide((v) => !v)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-300"
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium"
             >
               <span className="flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
@@ -330,7 +341,10 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Session / Group Name</Label>
-                    <Select value={sessionCol} onValueChange={handleColumnChange(setSessionCol)}>
+                    <Select
+                      value={sessionCol}
+                      onValueChange={handleColumnChange(setSessionCol)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select column" />
                       </SelectTrigger>
@@ -345,7 +359,10 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Prize Name</Label>
-                    <Select value={nameCol} onValueChange={handleColumnChange(setNameCol)}>
+                    <Select
+                      value={nameCol}
+                      onValueChange={handleColumnChange(setNameCol)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select column" />
                       </SelectTrigger>
@@ -360,12 +377,17 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Quantity (optional)</Label>
-                    <Select value={qtyCol} onValueChange={handleColumnChange(setQtyCol)}>
+                    <Select
+                      value={qtyCol}
+                      onValueChange={handleColumnChange(setQtyCol)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select column" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={NONE_VALUE}>None (default 1)</SelectItem>
+                        <SelectItem value={NONE_VALUE}>
+                          None (default 1)
+                        </SelectItem>
                         {headers.map((h) => (
                           <SelectItem key={h} value={h}>
                             {h}
@@ -385,7 +407,11 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                     </Label>
                     <div className="flex flex-wrap gap-1 justify-end">
                       {uniqueSessions.map((s) => (
-                        <Badge key={s} variant="secondary" className="text-xs font-normal">
+                        <Badge
+                          key={s}
+                          variant="secondary"
+                          className="text-xs font-normal"
+                        >
                           {s}
                         </Badge>
                       ))}
@@ -444,8 +470,8 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                     </Table>
                   </ScrollArea>
                   <p className="text-xs text-muted-foreground">
-                    {selectedCount} of {validRowIndexes.length} valid rows selected
-                    across {uniqueSessions.length} session
+                    {selectedCount} of {validRowIndexes.length} valid rows
+                    selected across {uniqueSessions.length} session
                     {uniqueSessions.length === 1 ? "" : "s"}.
                   </p>
                 </div>
@@ -460,12 +486,18 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                         checked={allowReshuffle}
                         onCheckedChange={(c) => setAllowReshuffle(c === true)}
                       />
-                      <Label htmlFor="import-allow-reshuffle" className="text-xs cursor-pointer">
+                      <Label
+                        htmlFor="import-allow-reshuffle"
+                        className="text-xs cursor-pointer"
+                      >
                         Allow Reshuffle
                       </Label>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[250px] text-xs">
-                      <p>Allows redrawing a winner during the draw session for all imported sessions.</p>
+                      <p>
+                        Allows redrawing a winner during the draw session for
+                        all imported sessions.
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -477,12 +509,18 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                         checked={groupWinners}
                         onCheckedChange={(c) => setGroupWinners(c === true)}
                       />
-                      <Label htmlFor="import-group-winners" className="text-xs cursor-pointer">
+                      <Label
+                        htmlFor="import-group-winners"
+                        className="text-xs cursor-pointer"
+                      >
                         Group Winners
                       </Label>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[250px] text-xs">
-                      <p>Groups winners of the same prize into a single visual box for all imported sessions.</p>
+                      <p>
+                        Groups winners of the same prize into a single visual
+                        box for all imported sessions.
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </div>

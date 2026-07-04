@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Nunito, Roboto } from "next/font/google"; // Cozy font
+import { Nunito, Roboto, IBM_Plex_Sans } from "next/font/google"; // Cozy font
 import localFont from "next/font/local";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'});
 
 const excon = localFont({
   src: "./fonts/Excon-Variable.woff2",
@@ -35,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", ibmPlexSans.variable)}>
       <body
         className={`${nunito.variable} ${roboto.variable} ${excon.variable} antialiased `}
       >

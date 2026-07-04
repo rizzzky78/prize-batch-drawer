@@ -8,9 +8,27 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Trash2, Plus, Gift, RotateCcw, Package, ChevronDown, ChevronUp, Check, Info } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Trash2,
+  Plus,
+  Gift,
+  RotateCcw,
+  Package,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  Info,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -52,7 +70,13 @@ export const PrizeManager = () => {
     const qty = parseInt(quantity);
     if (isNaN(qty) || qty < 1) return;
 
-    addPrize(sessionName.trim(), prizeName.trim(), qty, allowReshuffle, groupWinners);
+    addPrize(
+      sessionName.trim(),
+      prizeName.trim(),
+      qty,
+      allowReshuffle,
+      groupWinners,
+    );
     setPrizeName("");
     setQuantity("1");
     // Keep session name and reshuffle setting for faster entry
@@ -67,21 +91,21 @@ export const PrizeManager = () => {
   const handleImportPrizes = (
     entries: { sessionName: string; name: string; quantity: number }[],
     importAllowReshuffle: boolean,
-    importGroupWinners: boolean
+    importGroupWinners: boolean,
   ) => {
     importPrizes(entries, importAllowReshuffle, importGroupWinners);
   };
 
   const totalPrizes = sessions.reduce(
     (acc, session) => acc + session.prizes.reduce((s, p) => s + p.quantity, 0),
-    0
+    0,
   );
 
   const handleSessionSelect = (name: string) => {
     setSessionName(name);
     setOpen(false);
     // Find existing session settings
-    const existingSession = sessions.find(s => s.name === name);
+    const existingSession = sessions.find((s) => s.name === name);
     if (existingSession) {
       setAllowReshuffle(!!existingSession.allowReshuffle);
       setGroupWinners(!!existingSession.groupWinners);
@@ -104,9 +128,8 @@ export const PrizeManager = () => {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  variant="outline"
                   size="sm"
-                  className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
+                  className="text-red-500 bg-red-50 hover:bg-red-100"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Reset Winner
@@ -116,8 +139,8 @@ export const PrizeManager = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will clear all winners for ALL sessions. This
-                    action cannot be undone.
+                    This will clear all winners for ALL sessions. This action
+                    cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -150,8 +173,8 @@ export const PrizeManager = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently remove all
-                    sessions and prizes.
+                    This action cannot be undone. This will permanently remove
+                    all sessions and prizes.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -170,11 +193,12 @@ export const PrizeManager = () => {
       </CardHeader>
 
       <CardContent className="flex-1 pt-4 flex flex-col gap-4 overflow-hidden">
-
         {/* Input Form */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
-            <Label htmlFor="session-name" className="text-white">Session Name</Label>
+            <Label htmlFor="session-name" className="text-white">
+              Session Name
+            </Label>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <div className="relative">
@@ -187,7 +211,9 @@ export const PrizeManager = () => {
                       if (!open) setOpen(true);
                       // Reset/Update reshuffle if name changes?
                       // Better to just let them set it, or try to auto-find if exact match
-                      const existing = sessions.find(s => s.name === e.target.value);
+                      const existing = sessions.find(
+                        (s) => s.name === e.target.value,
+                      );
                       if (existing) {
                         setAllowReshuffle(!!existing.allowReshuffle);
                         setGroupWinners(!!existing.groupWinners);
@@ -198,7 +224,11 @@ export const PrizeManager = () => {
                     autoComplete="off"
                   />
                   <div className="absolute right-2 top-2.5 text-slate-500 pointer-events-none">
-                    {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    {open ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </div>
                 </div>
               </PopoverTrigger>
@@ -208,21 +238,33 @@ export const PrizeManager = () => {
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 {uniqueSessions.length === 0 ? (
-                  <div className="p-2 text-sm text-slate-500 text-center">No previous sessions</div>
+                  <div className="p-2 text-sm text-slate-500 text-center">
+                    No previous sessions
+                  </div>
                 ) : (
                   <div className="flex flex-col gap-1">
-                    {uniqueSessions.filter(s => s.toLowerCase().includes(sessionName.toLowerCase())).map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => handleSessionSelect(s)}
-                        className="text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-slate-800 rounded-sm transition-colors flex items-center justify-between group"
-                      >
-                        {s}
-                        {sessionName === s && <Check className="h-3 w-3 text-emerald-500" />}
-                      </button>
-                    ))}
-                    {uniqueSessions.filter(s => s.toLowerCase().includes(sessionName.toLowerCase())).length === 0 && (
-                      <div className="p-2 text-sm text-slate-500 italic">No matching session found</div>
+                    {uniqueSessions
+                      .filter((s) =>
+                        s.toLowerCase().includes(sessionName.toLowerCase()),
+                      )
+                      .map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => handleSessionSelect(s)}
+                          className="text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-slate-800 rounded-sm transition-colors flex items-center justify-between group"
+                        >
+                          {s}
+                          {sessionName === s && (
+                            <Check className="h-3 w-3 text-emerald-500" />
+                          )}
+                        </button>
+                      ))}
+                    {uniqueSessions.filter((s) =>
+                      s.toLowerCase().includes(sessionName.toLowerCase()),
+                    ).length === 0 && (
+                      <div className="p-2 text-sm text-slate-500 italic">
+                        No matching session found
+                      </div>
                     )}
                   </div>
                 )}
@@ -230,7 +272,9 @@ export const PrizeManager = () => {
             </Popover>
           </div>
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
-            <Label htmlFor="prize-name" className="text-white">Prize Name</Label>
+            <Label htmlFor="prize-name" className="text-white">
+              Prize Name
+            </Label>
             <Input
               id="prize-name"
               placeholder="Prize Name"
@@ -241,7 +285,9 @@ export const PrizeManager = () => {
             />
           </div>
           <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
-            <Label htmlFor="quantity" className="text-white">Quantity</Label>
+            <Label htmlFor="quantity" className="text-white">
+              Quantity
+            </Label>
             <Input
               id="quantity"
               type="number"
@@ -266,10 +312,18 @@ export const PrizeManager = () => {
                       checked={allowReshuffle}
                       onChange={(e) => setAllowReshuffle(e.target.checked)}
                     />
-                    <Label htmlFor="allowReshuffle" className="text-white cursor-pointer text-xs">Allow Reshuffle</Label>
+                    <Label
+                      htmlFor="allowReshuffle"
+                      className="text-white cursor-pointer text-xs"
+                    >
+                      Allow Reshuffle
+                    </Label>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[250px] text-xs">
-                    <p>Allows redrawing a winner for this prize during the draw session.</p>
+                    <p>
+                      Allows redrawing a winner for this prize during the draw
+                      session.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -283,10 +337,18 @@ export const PrizeManager = () => {
                       checked={groupWinners}
                       onChange={(e) => setGroupWinners(e.target.checked)}
                     />
-                    <Label htmlFor="groupWinners" className="text-white cursor-pointer text-xs">Group Winners</Label>
+                    <Label
+                      htmlFor="groupWinners"
+                      className="text-white cursor-pointer text-xs"
+                    >
+                      Group Winners
+                    </Label>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[250px] text-xs">
-                    <p>Groups winners of the same prize into a single visual box instead of creating a separate box for each item.</p>
+                    <p>
+                      Groups winners of the same prize into a single visual box
+                      instead of creating a separate box for each item.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
