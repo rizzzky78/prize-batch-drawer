@@ -8,9 +8,31 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
+import {
+  Upload,
+  FileSpreadsheet,
+  Check,
+  AlertCircle,
+  Info,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const FORMAT_EXAMPLE = [
+  { name: "Andi Wijaya" },
+  { name: "Budi Santoso" },
+  { name: "Citra Lestari" },
+];
 
 interface ParticipantImporterProps {
   onImport: (names: string[]) => void;
@@ -27,6 +49,7 @@ export const ParticipantImporter = ({
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [showGuide, setShowGuide] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +61,7 @@ export const ParticipantImporter = ({
     setHeaders([]);
     setPreviewData([]);
     setSelectedColumn("");
+    setShowGuide(false);
 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer();
@@ -109,6 +133,7 @@ export const ParticipantImporter = ({
     setPreviewData([]);
     setSelectedColumn("");
     setError("");
+    setShowGuide(true);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -133,6 +158,53 @@ export const ParticipantImporter = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-medium leading-none">Import Participants</h4>
+          </div>
+
+          <div className="rounded-md border border-slate-700 bg-slate-900/40">
+            <button
+              type="button"
+              onClick={() => setShowGuide((v) => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-300"
+            >
+              <span className="flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5" />
+                Accepted Data Format
+              </span>
+              {showGuide ? (
+                <ChevronUp className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5" />
+              )}
+            </button>
+            {showGuide && (
+              <div className="px-3 pb-3 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  The file must be <span className="font-medium">.xlsx</span> or{" "}
+                  <span className="font-medium">.xls</span> with a header row on
+                  the first line. Column names can be anything — you&apos;ll
+                  pick which column holds the names in step 2. A column named{" "}
+                  <span className="font-medium">Name</span> or{" "}
+                  <span className="font-medium">Nama</span> is auto-selected.
+                  Empty cells are skipped and values are trimmed.
+                </p>
+                <div className="rounded border border-slate-700 overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {FORMAT_EXAMPLE.map((row) => (
+                        <TableRow key={row.name}>
+                          <TableCell>{row.name}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

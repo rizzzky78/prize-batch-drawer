@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { SessionData } from "@/data/prizes";
+import { PrizeImporter } from "./PrizeImporter";
 
 export const PrizeManager = () => {
   const [sessionName, setSessionName] = useState("");
@@ -35,6 +36,7 @@ export const PrizeManager = () => {
 
   const sessions = useStore((state) => state.sessions);
   const addPrize = useStore((state) => state.addPrize);
+  const importPrizes = useStore((state) => state.importPrizes);
   const removePrize = useStore((state) => state.removePrize);
   const resetPrizes = useStore((state) => state.resetPrizes);
   const { resetDraw } = useStore();
@@ -60,6 +62,14 @@ export const PrizeManager = () => {
     if (e.key === "Enter") {
       handleAdd();
     }
+  };
+
+  const handleImportPrizes = (
+    entries: { sessionName: string; name: string; quantity: number }[],
+    importAllowReshuffle: boolean,
+    importGroupWinners: boolean
+  ) => {
+    importPrizes(entries, importAllowReshuffle, importGroupWinners);
   };
 
   const totalPrizes = sessions.reduce(
@@ -90,6 +100,7 @@ export const PrizeManager = () => {
             </Badge>
           </CardTitle>
           <div className="flex items-center gap-2">
+            <PrizeImporter onImport={handleImportPrizes} />
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button

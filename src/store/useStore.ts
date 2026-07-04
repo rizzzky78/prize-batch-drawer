@@ -29,6 +29,11 @@ interface AppState {
   // Prize Management
   sessions: SessionData[];
   addPrize: (sessionName: string, name: string, quantity: number, allowReshuffle: boolean, groupWinners: boolean) => void;
+  importPrizes: (
+    entries: { sessionName: string; name: string; quantity: number }[],
+    allowReshuffle: boolean,
+    groupWinners: boolean
+  ) => void;
   removePrize: (prizeId: string) => void;
   resetPrizes: () => void;
 }
@@ -169,6 +174,54 @@ export const useStore = create<AppState>()(
             };
             return { sessions: [...state.sessions, newSession] };
           }
+        }),
+
+      importPrizes: (entries, allowReshuffle, groupWinners) =>
+        set((state) => {
+          const newSessions = [...state.sessions];
+
+          entries.forEach((entry, idx) => {
+            const sessionName = entry.sessionName.trim();
+            const name = entry.name.trim();
+            if (!sessionName || !name) return;
+
+            const safeSessionId = sessionName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, "");
+            const prizeId = `${safeSessionId}-${Date.now()}-${idx}`;
+
+            const newPrize: PrizeItem = {
+              id: prizeId,
+              category: sessionName,
+              name,
+              quantity: entry.quantity,
+            };
+
+            const existingSessionIndex = newSessions.findIndex(
+              (s) => s.name === sessionName
+            );
+
+            if (existingSessionIndex !== -1) {
+              const currentPrizes = newSessions[existingSessionIndex].prizes;
+              newSessions[existingSessionIndex] = {
+                ...newSessions[existingSessionIndex],
+                allowReshuffle,
+                groupWinners,
+                prizes: [...currentPrizes, newPrize],
+              };
+            } else {
+              newSessions.push({
+                id: safeSessionId || `session-${Date.now()}-${idx}`,
+                name: sessionName,
+                allowReshuffle,
+                groupWinners,
+                prizes: [newPrize],
+              });
+            }
+          });
+
+          return { sessions: newSessions };
         }),
 
       removePrize: (prizeId) =>
