@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useStore } from "@/store/useStore";
+import { useTranslation } from "@/lib/translations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,6 +33,7 @@ export const ParticipantManager = () => {
     isLocked,
     winners,
   } = useStore();
+  const t = useTranslation();
 
   const allWinners = new Set<string>();
 
@@ -47,7 +49,7 @@ export const ParticipantManager = () => {
       if (
         participants.some((p) => p.toLowerCase() === trimmedName.toLowerCase())
       ) {
-        alert("The input participant name was duplicate.");
+        alert(t.participants.duplicateAlert);
         return;
       }
       addParticipant(trimmedName);
@@ -71,9 +73,9 @@ export const ParticipantManager = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-xl">
             <Users className="w-5 h-5" />
-            Participants
+            {t.participants.title}
             <Badge variant="secondary" className="ml-2 text-xs font-normal">
-              {participants.length} total
+              {participants.length} {t.participants.total}
             </Badge>
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -85,28 +87,26 @@ export const ParticipantManager = () => {
                   size="sm"
                   disabled={participants.length === 0}
                   className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
-                  title="Reset all participants"
+                  title={t.participants.resetAllTitle}
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Reset
+                  {t.participants.reset}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Reset Participants?</AlertDialogTitle>
+                  <AlertDialogTitle>{t.participants.resetTitle}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently remove
-                    all non-winning participants from the list. Winners will
-                    remain.
+                    {t.participants.resetDesc}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={resetParticipants}
                     className="bg-red-500 hover:bg-red-600"
                   >
-                    Yes, Reset All
+                    {t.participants.resetConfirm}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -118,7 +118,7 @@ export const ParticipantManager = () => {
       <CardContent className="flex-1 pt-10 flex flex-col gap-4 overflow-hidden">
         <div className="flex gap-2">
           <Input
-            placeholder="Enter participant name... and then press Enter to entry"
+            placeholder={t.participants.inputPlaceholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -133,7 +133,7 @@ export const ParticipantManager = () => {
           {participants.length === 0 ? (
             <div className="h-[400px] flex flex-col items-center justify-center py-8 text-slate-400 text-sm italic">
               <Users className="w-12 h-12 mb-2 opacity-20" />
-              No participants yet
+              {t.participants.empty}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -160,7 +160,7 @@ export const ParticipantManager = () => {
                       <button
                         onClick={() => removeParticipant(p)}
                         className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove participant"
+                        title={t.participants.removeTitle}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

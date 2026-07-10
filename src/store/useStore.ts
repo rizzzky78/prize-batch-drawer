@@ -51,7 +51,7 @@ export const useStore = create<AppState>()(
       sessions: [],
       winners: {},
       isLocked: false,
-      language: "id",
+      language: "en",
       isAudioEnabled: true,
 
       setEventName: (name) => set({ eventName: name }),

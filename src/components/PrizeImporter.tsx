@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import * as xlsx from "xlsx";
+import { useTranslation } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,6 +84,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
   const [error, setError] = useState("");
   const [showGuide, setShowGuide] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslation();
 
   const resetState = () => {
     setHeaders([]);
@@ -123,7 +125,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
       );
 
       if (validHeaders.length === 0) {
-        setError("No valid headers found in the Excel file.");
+        setError(t.importer.noValidHeaders);
         return;
       }
 
@@ -149,9 +151,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
       );
     } catch (err) {
       console.error("Error parsing Excel file:", err);
-      setError(
-        "Failed to parse the Excel file. Please ensure it is a valid .xlsx file.",
-      );
+      setError(t.importer.parseFail);
     }
   };
 
@@ -219,7 +219,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
       }));
 
     if (entries.length === 0) {
-      setError("No rows selected to import.");
+      setError(t.importer.noRowsSelected);
       return;
     }
 
@@ -241,19 +241,16 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
           size="sm"
           disabled={disabled}
           className="gap-2"
-          title="Import prizes from Excel"
+          title={t.importer.importFromExcelTitle}
         >
           <FileSpreadsheet className="w-4 h-4" />
-          Import Excel
+          {t.importer.importExcel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Import Prizes from Excel</DialogTitle>
-          <DialogDescription>
-            Map your spreadsheet columns to sessions, prize names, and
-            quantities, then review the preview before applying.
-          </DialogDescription>
+          <DialogTitle>{t.importer.importPrizesTitle}</DialogTitle>
+          <DialogDescription>{t.importer.importPrizesDesc}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -265,7 +262,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
             >
               <span className="flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
-                Accepted Data Format
+                {t.importer.acceptedFormat}
               </span>
               {showGuide ? (
                 <ChevronUp className="w-3.5 h-3.5" />
@@ -276,21 +273,17 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
             {showGuide && (
               <div className="px-3 pb-3 space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  The file must be <span className="font-medium">.xlsx</span> or{" "}
-                  <span className="font-medium">.xls</span> with a header row on
-                  the first line. Column names can be anything — you&apos;ll map
-                  them to Session, Prize Name, and Quantity in step 2. Rows
-                  sharing the same Session value are grouped into that session.
-                  Quantity is optional; it defaults to 1 if left unmapped or
-                  isn&apos;t a valid positive number.
+                  {t.importer.prizesGuide}
                 </p>
                 <div className="rounded border border-slate-700 overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Session</TableHead>
-                        <TableHead>Prize Name</TableHead>
-                        <TableHead className="text-right">Quantity</TableHead>
+                        <TableHead>{t.importer.session}</TableHead>
+                        <TableHead>{t.importer.prizeName}</TableHead>
+                        <TableHead className="text-right">
+                          {t.importer.quantity}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -314,7 +307,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
 
           <div className="space-y-2">
             <Label className="text-xs font-medium text-muted-foreground">
-              1. Select Excel File
+              {t.importer.selectFile}
             </Label>
             <Input
               ref={fileInputRef}
@@ -336,17 +329,17 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
             <>
               <div className="space-y-2">
                 <Label className="text-xs font-medium text-muted-foreground">
-                  2. Map Columns
+                  {t.importer.mapColumns}
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Session / Group Name</Label>
+                    <Label className="text-xs">{t.importer.sessionGroupName}</Label>
                     <Select
                       value={sessionCol}
                       onValueChange={handleColumnChange(setSessionCol)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select column" />
+                        <SelectValue placeholder={t.importer.selectColumn} />
                       </SelectTrigger>
                       <SelectContent>
                         {headers.map((h) => (
@@ -358,13 +351,13 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Prize Name</Label>
+                    <Label className="text-xs">{t.importer.prizeName}</Label>
                     <Select
                       value={nameCol}
                       onValueChange={handleColumnChange(setNameCol)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select column" />
+                        <SelectValue placeholder={t.importer.selectColumn} />
                       </SelectTrigger>
                       <SelectContent>
                         {headers.map((h) => (
@@ -376,17 +369,17 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Quantity (optional)</Label>
+                    <Label className="text-xs">{t.importer.quantityOptional}</Label>
                     <Select
                       value={qtyCol}
                       onValueChange={handleColumnChange(setQtyCol)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select column" />
+                        <SelectValue placeholder={t.importer.selectColumn} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NONE_VALUE}>
-                          None (default 1)
+                          {t.importer.noneDefault}
                         </SelectItem>
                         {headers.map((h) => (
                           <SelectItem key={h} value={h}>
@@ -403,7 +396,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-medium text-muted-foreground">
-                      3. Preview & Select Rows
+                      {t.importer.previewSelectRows}
                     </Label>
                     <div className="flex flex-wrap gap-1 justify-end">
                       {uniqueSessions.map((s) => (
@@ -428,9 +421,9 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                               aria-label="Select all"
                             />
                           </TableHead>
-                          <TableHead>Session</TableHead>
-                          <TableHead>Prize Name</TableHead>
-                          <TableHead className="text-right">Qty</TableHead>
+                          <TableHead>{t.importer.session}</TableHead>
+                          <TableHead>{t.importer.prizeName}</TableHead>
+                          <TableHead className="text-right">{t.importer.qty}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -450,14 +443,14 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                             <TableCell className="whitespace-nowrap">
                               {row.session || (
                                 <span className="italic text-muted-foreground">
-                                  missing
+                                  {t.importer.missing}
                                 </span>
                               )}
                             </TableCell>
                             <TableCell>
                               {row.name || (
                                 <span className="italic text-muted-foreground">
-                                  missing
+                                  {t.importer.missing}
                                 </span>
                               )}
                             </TableCell>
@@ -470,9 +463,11 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                     </Table>
                   </ScrollArea>
                   <p className="text-xs text-muted-foreground">
-                    {selectedCount} of {validRowIndexes.length} valid rows
-                    selected across {uniqueSessions.length} session
-                    {uniqueSessions.length === 1 ? "" : "s"}.
+                    {t.importer.rowsSelected(
+                      selectedCount,
+                      validRowIndexes.length,
+                      uniqueSessions.length,
+                    )}
                   </p>
                 </div>
               )}
@@ -490,14 +485,11 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                         htmlFor="import-allow-reshuffle"
                         className="text-xs cursor-pointer"
                       >
-                        Allow Reshuffle
+                        {t.prizes.allowReshuffle}
                       </Label>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[250px] text-xs">
-                      <p>
-                        Allows redrawing a winner during the draw session for
-                        all imported sessions.
-                      </p>
+                      <p>{t.importer.allowReshuffleImportTooltip}</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -513,14 +505,11 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
                         htmlFor="import-group-winners"
                         className="text-xs cursor-pointer"
                       >
-                        Group Winners
+                        {t.prizes.groupWinners}
                       </Label>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[250px] text-xs">
-                      <p>
-                        Groups winners of the same prize into a single visual
-                        box for all imported sessions.
-                      </p>
+                      <p>{t.importer.groupWinnersImportTooltip}</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -535,8 +524,7 @@ export const PrizeImporter = ({ onImport, disabled }: PrizeImporterProps) => {
             disabled={!sessionCol || !nameCol || selectedCount === 0}
           >
             <Upload className="w-4 h-4 mr-2" />
-            Import {selectedCount > 0 ? selectedCount : ""} Prize
-            {selectedCount === 1 ? "" : "s"}
+            {t.importer.importPrizesButton(selectedCount)}
           </Button>
         </DialogFooter>
       </DialogContent>

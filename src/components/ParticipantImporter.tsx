@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import * as xlsx from "xlsx";
+import { useTranslation } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,7 @@ export const ParticipantImporter = ({
   const [error, setError] = useState<string>("");
   const [showGuide, setShowGuide] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslation();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -78,7 +80,7 @@ export const ParticipantImporter = ({
         );
 
         if (validHeaders.length === 0) {
-          setError("No valid headers found in the Excel file.");
+          setError(t.importer.noValidHeaders);
           return;
         }
 
@@ -90,13 +92,11 @@ export const ParticipantImporter = ({
         const nameCol = validHeaders.find((h) => /^(name|nama)$/i.test(h));
         if (nameCol) setSelectedColumn(nameCol);
       } else {
-        setError("The Excel file appears to be empty.");
+        setError(t.importer.emptyFile);
       }
     } catch (err) {
       console.error("Error parsing Excel file:", err);
-      setError(
-        "Failed to parse the Excel file. Please ensure it is a valid .xlsx file.",
-      );
+      setError(t.importer.parseFail);
     }
   };
 
@@ -116,7 +116,7 @@ export const ParticipantImporter = ({
         .map((name) => String(name).trim());
 
       if (importedNames.length === 0) {
-        setError("No valid names found in the selected column.");
+        setError(t.importer.noValidNames);
         return;
       }
 
@@ -125,7 +125,7 @@ export const ParticipantImporter = ({
       resetState();
     } catch (err) {
       console.error("Error importing data:", err);
-      setError("Failed to import data.");
+      setError(t.importer.importFail);
     }
   };
 
@@ -152,16 +152,18 @@ export const ParticipantImporter = ({
           size="sm"
           disabled={disabled}
           className="gap-2"
-          title="Import from Excel"
+          title={t.importer.importFromExcelTitle}
         >
           <FileSpreadsheet className="w-4 h-4" />
-          Import Excel
+          {t.importer.importExcel}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 sm:w-96 p-4" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium leading-none">Import Participants</h4>
+            <h4 className="font-medium leading-none">
+              {t.importer.importParticipantsHeading}
+            </h4>
           </div>
 
           <div className="rounded-md border border-slate-7000">
@@ -172,7 +174,7 @@ export const ParticipantImporter = ({
             >
               <span className="flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
-                Accepted Data Format
+                {t.importer.acceptedFormat}
               </span>
               {showGuide ? (
                 <ChevronUp className="w-3.5 h-3.5" />
@@ -183,13 +185,7 @@ export const ParticipantImporter = ({
             {showGuide && (
               <div className="px-3 pb-3 space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  The file must be <span className="font-medium">.xlsx</span> or{" "}
-                  <span className="font-medium">.xls</span> with a header row on
-                  the first line. Column names can be anything — you&apos;ll
-                  pick which column holds the names in step 2. A column named{" "}
-                  <span className="font-medium">Name</span> or{" "}
-                  <span className="font-medium">Nama</span> is auto-selected.
-                  Empty cells are skipped and values are trimmed.
+                  {t.importer.participantsGuide}
                 </p>
                 <div className="rounded border border-slate-700 overflow-hidden">
                   <Table>
@@ -216,7 +212,7 @@ export const ParticipantImporter = ({
               htmlFor="file-upload"
               className="text-xs font-medium text-slate-500"
             >
-              1. Select Excel File
+              {t.importer.selectFile}
             </Label>
             <div className="flex gap-2">
               <Input
@@ -240,7 +236,7 @@ export const ParticipantImporter = ({
           {headers.length > 0 && (
             <div className="space-y-2">
               <Label className="text-xs font-medium text-slate-500">
-                2. Select Name Column
+                {t.importer.selectNameColumn}
               </Label>
               <ScrollArea className="h-40 border rounded-md p-2 bg-black/90 text-white">
                 <RadioGroup
@@ -265,7 +261,7 @@ export const ParticipantImporter = ({
               </ScrollArea>
               {previewData.length > 0 && selectedColumn && (
                 <p className="text-xs text-slate-500 italic">
-                  Preview: {previewData[0]?.[selectedColumn] || "(no preview)"},
+                  {t.importer.preview}: {previewData[0]?.[selectedColumn] || "(no preview)"},
                   ...
                 </p>
               )}
@@ -278,7 +274,7 @@ export const ParticipantImporter = ({
             disabled={!file || !selectedColumn}
           >
             <Upload className="w-4 h-4 mr-2" />
-            Import Participants
+            {t.importer.importParticipantsButton}
           </Button>
         </div>
       </PopoverContent>

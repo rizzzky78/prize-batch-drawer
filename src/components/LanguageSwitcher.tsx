@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useStore } from "@/store/useStore";
+import { useTranslation } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Languages, Check } from "lucide-react";
@@ -16,6 +17,7 @@ export const LanguageSwitcher = () => {
   const [open, setOpen] = useState(false);
   const language = useStore((state) => state.language);
   const setLanguage = useStore((state) => state.setLanguage);
+  const t = useTranslation();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -23,9 +25,9 @@ export const LanguageSwitcher = () => {
         <Button
           variant="outline"
           className="bg-slate-800/80 backdrop-blur-sm border-slate-700 text-white hover:text-white hover:bg-slate-700 shadow-xl z-50 cursor-pointer transition-all hover:scale-105"
-          title="Change language"
+          title={t.language.changeTitle}
         >
-          Languages
+          {t.language.trigger}
           <Languages className="w-3 h-3" />
         </Button>
       </PopoverTrigger>

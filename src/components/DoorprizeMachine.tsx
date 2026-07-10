@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
+import { useTranslation } from "@/lib/translations";
 import { SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export const DoorprizeMachine = () => {
     sessions,
     isAudioEnabled,
   } = useStore();
+  const t = useTranslation();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -184,7 +186,10 @@ export const DoorprizeMachine = () => {
 
     if (availableCandidates.length < slotsToFill.length) {
       alert(
-        `Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`,
+        t.doorprize.notEnoughParticipants(
+          slotsToFill.length,
+          availableCandidates.length,
+        ),
       );
       return;
     }
@@ -265,7 +270,7 @@ export const DoorprizeMachine = () => {
     // Assuming we pick from 'availableCandidates' (people who haven't won yet).
 
     if (availableCandidates.length === 0) {
-      alert("No available candidates to reshuffle!");
+      alert(t.doorprize.noCandidatesToReshuffle);
       setReshuffleTarget(null);
       return;
     }
@@ -342,8 +347,10 @@ export const DoorprizeMachine = () => {
         {!activeSession ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
             <AlertCircle className="w-16 h-16 mb-4 opacity-20" />
-            <h2 className="text-xl font-semibold mb-2">No Active Session</h2>
-            <p>Please add prizes in the Prize Manager below.</p>
+            <h2 className="text-xl font-semibold mb-2">
+              {t.doorprize.noActiveSessionTitle}
+            </h2>
+            <p>{t.doorprize.noActiveSessionBody}</p>
           </div>
         ) : (
           <div className="min-w-5xl w-full px-10 mx-auto">
@@ -354,10 +361,10 @@ export const DoorprizeMachine = () => {
                 </h2>
                 <p className="text-slate-300 mt-1 text-sm">
                   <span>
-                    {availableCandidates.length} potential winners left
+                    {t.doorprize.potentialWinnersLeft(availableCandidates.length)}
                   </span>
                   <br />
-                  <span>{displayBoxes.length}</span> Items
+                  <span>{displayBoxes.length}</span> {t.doorprize.items}
                 </p>
               </div>
 
@@ -408,12 +415,12 @@ export const DoorprizeMachine = () => {
                   >
                     {isAnimationPlaying ? (
                       <span className="flex items-center animate-pulse">
-                        Running Draw...
+                        {t.doorprize.runningDraw}
                       </span>
                     ) : (
                       <span className="flex items-center">
                         <Play className="fill-current w-6 h-6 mr-2" />
-                        DRAW
+                        {t.doorprize.draw}
                       </span>
                     )}
                   </Button>
@@ -421,7 +428,7 @@ export const DoorprizeMachine = () => {
                 {isSessionComplete && (
                   <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
                     <Trophy className="w-6 h-6 mr-2" />
-                    Draw Complete
+                    {t.doorprize.drawComplete}
                   </div>
                 )}
               </div>
@@ -512,20 +519,18 @@ export const DoorprizeMachine = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Reshuffle Winner?</AlertDialogTitle>
+            <AlertDialogTitle>{t.doorprize.reshuffleWinnerTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to reshuffle this prize? The current winner
-              will be replaced by a new random candidate. This action cannot be
-              undone.
+              {t.doorprize.reshuffleWinnerDesc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmReshuffle}
               className="bg-yellow-500 hover:bg-yellow-600 text-white"
             >
-              Confirm Reshuffle
+              {t.doorprize.confirmReshuffle}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

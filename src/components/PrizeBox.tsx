@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/translations";
 
 interface PrizeBoxProps {
   prizeName: string;
@@ -32,6 +33,7 @@ export const PrizeBox = ({
 }: PrizeBoxProps) => {
   const [displayedNames, setDisplayedNames] = useState<string[]>(Array(quantity).fill("???"));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const t = useTranslation();
 
   useEffect(() => {
     if (isRolling) {
@@ -52,9 +54,9 @@ export const PrizeBox = ({
         if (intervalRef.current) clearInterval(intervalRef.current);
         let finalNames: string[] = [];
         if (Array.isArray(winnerName)) {
-          finalNames = winnerName.map(w => w || "No Winner");
+          finalNames = winnerName.map(w => w || t.doorprize.noWinner);
         } else {
-          finalNames = [winnerName || "No Winner"];
+          finalNames = [winnerName || t.doorprize.noWinner];
         }
         setDisplayedNames(finalNames);
         onFinish?.();
@@ -73,7 +75,7 @@ export const PrizeBox = ({
       }
       setDisplayedNames(finalNames);
     }
-  }, [isRolling, winnerName, candidates, delay, baseDuration, onFinish, quantity]);
+  }, [isRolling, winnerName, candidates, delay, baseDuration, onFinish, quantity, t]);
 
   const hasWinner = Array.isArray(winnerName)
     ? winnerName.some(w => !!w)
@@ -124,7 +126,7 @@ export const PrizeBox = ({
                   <button
                     onClick={() => onReshuffle(i)}
                     className="absolute right-0 opacity-0 group-hover/item:opacity-100 text-xs rounded-full cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 border border-transparent hover:border-red-200 transition-all flex items-center justify-center bg-white shadow-sm"
-                    title="Reshuffle Winner"
+                    title={t.doorprize.reshuffleWinnerAction}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></svg>
                   </button>
@@ -141,7 +143,7 @@ export const PrizeBox = ({
           <button
             onClick={() => onReshuffle()}
             className="text-xs rounded-full cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 border border-transparent hover:border-red-200 transition-colors flex items-center gap-1"
-            title="Reshuffle Winner"
+            title={t.doorprize.reshuffleWinnerAction}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -159,7 +161,7 @@ export const PrizeBox = ({
               <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
               <path d="M16 16h5v5" />
             </svg>
-            Reshuffle
+            {t.doorprize.reshuffle}
           </button>
         </div>
       )}

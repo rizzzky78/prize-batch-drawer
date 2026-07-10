@@ -3,6 +3,7 @@
 /* PrizeManager Cleanups */
 import { useState, useMemo } from "react";
 import { useStore } from "@/store/useStore";
+import { useTranslation } from "@/lib/translations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -59,6 +60,7 @@ export const PrizeManager = () => {
   const resetPrizes = useStore((state) => state.resetPrizes);
 
   const { resetDraw } = useStore();
+  const t = useTranslation();
 
   // Memoize unique session names for the suggestion list
   const uniqueSessions = useMemo(() => {
@@ -119,9 +121,9 @@ export const PrizeManager = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-xl">
             <Gift className="w-5 h-5" />
-            Prize Pool
+            {t.prizes.title}
             <Badge variant="secondary" className="ml-2 text-xs font-normal">
-              {totalPrizes} items
+              {totalPrizes} {t.prizes.items}
             </Badge>
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -133,26 +135,25 @@ export const PrizeManager = () => {
                   className="text-red-500 bg-red-50 hover:bg-red-100"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Reset Winner
+                  {t.prizes.resetWinner}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
+                  <AlertDialogTitle>{t.prizes.resetAllHeading}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will clear all winners for ALL sessions. This action
-                    cannot be undone.
+                    {t.prizes.resetWinnerDesc}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => {
                       resetDraw();
                     }}
                     className="bg-red-500 hover:bg-red-600"
                   >
-                    Confirm Reset
+                    {t.prizes.confirmReset}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -164,27 +165,26 @@ export const PrizeManager = () => {
                   size="sm"
                   className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
                   disabled={totalPrizes === 0}
-                  title="Reset all prizes"
+                  title={t.prizes.resetAllTitle}
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Reset
+                  {t.participants.reset}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Reset All Prizes?</AlertDialogTitle>
+                  <AlertDialogTitle>{t.prizes.resetAllHeading}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently remove
-                    all sessions and prizes.
+                    {t.prizes.resetAllDesc}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={resetPrizes}
                     className="bg-red-500 hover:bg-red-600"
                   >
-                    Yes, Reset All
+                    {t.prizes.resetAllConfirm}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -198,14 +198,14 @@ export const PrizeManager = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
             <Label htmlFor="session-name" className="text-white">
-              Session Name
+              {t.prizes.sessionName}
             </Label>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <div className="relative">
                   <Input
                     id="session-name"
-                    placeholder="Session (e.g. Sesi 1)"
+                    placeholder={t.prizes.sessionPlaceholder}
                     value={sessionName}
                     onChange={(e) => {
                       setSessionName(e.target.value);
@@ -240,7 +240,7 @@ export const PrizeManager = () => {
               >
                 {uniqueSessions.length === 0 ? (
                   <div className="p-2 text-sm text-slate-500 text-center">
-                    No previous sessions
+                    {t.prizes.noPreviousSessions}
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1">
@@ -264,7 +264,7 @@ export const PrizeManager = () => {
                       s.toLowerCase().includes(sessionName.toLowerCase()),
                     ).length === 0 && (
                       <div className="p-2 text-sm text-slate-500 italic">
-                        No matching session found
+                        {t.prizes.noMatchingSession}
                       </div>
                     )}
                   </div>
@@ -274,11 +274,11 @@ export const PrizeManager = () => {
           </div>
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
             <Label htmlFor="prize-name" className="text-white">
-              Prize Name
+              {t.prizes.prizeName}
             </Label>
             <Input
               id="prize-name"
-              placeholder="Prize Name"
+              placeholder={t.prizes.prizeName}
               value={prizeName}
               onChange={(e) => setPrizeName(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -287,13 +287,13 @@ export const PrizeManager = () => {
           </div>
           <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
             <Label htmlFor="quantity" className="text-white">
-              Quantity
+              {t.prizes.quantity}
             </Label>
             <Input
               id="quantity"
               type="number"
               min="1"
-              placeholder="Qty"
+              placeholder={t.prizes.quantityPlaceholder}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -317,14 +317,11 @@ export const PrizeManager = () => {
                       htmlFor="allowReshuffle"
                       className="text-white cursor-pointer text-xs"
                     >
-                      Allow Reshuffle
+                      {t.prizes.allowReshuffle}
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[250px] text-xs">
-                    <p>
-                      Allows redrawing a winner for this prize during the draw
-                      session.
-                    </p>
+                    <p>{t.prizes.allowReshuffleTooltip}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -342,14 +339,11 @@ export const PrizeManager = () => {
                       htmlFor="groupWinners"
                       className="text-white cursor-pointer text-xs"
                     >
-                      Group Winners
+                      {t.prizes.groupWinners}
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[250px] text-xs">
-                    <p>
-                      Groups winners of the same prize into a single visual box
-                      instead of creating a separate box for each item.
-                    </p>
+                    <p>{t.prizes.groupWinnersTooltip}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -363,10 +357,10 @@ export const PrizeManager = () => {
               className="w-full md:w-auto"
               onClick={handleAdd}
               disabled={!sessionName.trim() || !prizeName.trim()}
-              title="Add Prize"
+              title={t.prizes.addPrize}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Prize
+              {t.prizes.addPrize}
             </Button>
           </div>
         </div>
@@ -376,7 +370,7 @@ export const PrizeManager = () => {
           {sessions.length === 0 ? (
             <div className="h-[200px] flex flex-col items-center justify-center py-8 text-slate-500 text-sm italic">
               <Package className="w-12 h-12 mb-2 opacity-20" />
-              No prizes configured
+              {t.prizes.empty}
             </div>
           ) : (
             <div className="space-y-6 pb-6">
@@ -385,7 +379,8 @@ export const PrizeManager = () => {
                   <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center">
                     {session.name}
                     <span className="ml-2 text-xs font-normal text-slate-300 capitalize bg-slate-700/30 px-2 py-0.5 rounded-full">
-                      {session.prizes.reduce((s, p) => s + p.quantity, 0)} items
+                      {session.prizes.reduce((s, p) => s + p.quantity, 0)}{" "}
+                      {t.prizes.items}
                     </span>
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
