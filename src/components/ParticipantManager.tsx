@@ -66,7 +66,7 @@ export const ParticipantManager = () => {
   };
 
   return (
-    <Card className="w-full bg-transparent border-none h-full flex flex-col border-t-4 rounded-none shadow-none border-t-slate-900">
+    <Card className="w-full bg-white/5 rounded-3xl border-none border-0 h-full flex flex-col shadow-none">
       <CardHeader className="pb-3 space-y-1">
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-xl">

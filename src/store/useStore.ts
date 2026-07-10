@@ -10,6 +10,12 @@ interface AppState {
   setEventName: (name: string) => void;
   isLocked: boolean; // Locks participant addition after first draw
 
+  language: "id" | "en";
+  setLanguage: (language: "id" | "en") => void;
+
+  isAudioEnabled: boolean;
+  setAudioEnabled: (enabled: boolean) => void;
+
   addParticipant: (name: string) => void;
   addParticipants: (names: string[]) => void;
   removeParticipant: (name: string) => void;
@@ -45,8 +51,12 @@ export const useStore = create<AppState>()(
       sessions: [],
       winners: {},
       isLocked: false,
+      language: "id",
+      isAudioEnabled: true,
 
       setEventName: (name) => set({ eventName: name }),
+      setLanguage: (language) => set({ language }),
+      setAudioEnabled: (enabled) => set({ isAudioEnabled: enabled }),
 
       addParticipant: (name) =>
         set((state) => {

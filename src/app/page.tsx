@@ -1,14 +1,14 @@
-
 import { DoorprizeMachine } from "@/components/DoorprizeMachine";
 import { ParticipantManager } from "@/components/ParticipantManager";
 import { PrizeManager } from "@/components/PrizeManager";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import Image from "next/image";
-
+import { AudioButton } from "@/components/AudioButton";
 
 export const metadata = {
-  title: "Prodone Harmony | Pertamina Patra Niaga",
+  title: "Collaboration FOC I | Pertamina Patra Niaga",
   description: "Doorprize Machine",
-}
+};
 
 export default function Home() {
   return (
@@ -46,7 +46,13 @@ export default function Home() {
 
       {/* Bottom Section: Management (Fixed height or smaller portion) */}
       <section className="min-h-screen z-20 pb-20">
-        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-1 gap-2">
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-1 gap-4">
+          <div className="w-full flex items-center justify-end">
+            <div className="flex items-center space-x-3">
+              <AudioButton />
+              <LanguageSwitcher />
+            </div>
+          </div>
           <div className="min-h-[400px]">
             <PrizeManager />
           </div>

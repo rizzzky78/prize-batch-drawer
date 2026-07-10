@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
@@ -6,7 +6,7 @@ import { SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle, Volume2, VolumeX } from "lucide-react";
+import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { shuffleWithRandomOrg } from "@/lib/random";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -42,7 +42,6 @@ export const DoorprizeMachine = () => {
   const [activeSessionId, setActiveSessionId] = useState<string>("");
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
   const [drawingKeys, setDrawingKeys] = useState<Set<string>>(new Set());
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
   // Reshuffle State
   const [reshuffleTarget, setReshuffleTarget] = useState<{
@@ -51,8 +50,15 @@ export const DoorprizeMachine = () => {
     key: string;
   } | null>(null);
 
-  const { participants, winners, addWinner, resetDraw, updateWinner, sessions } =
-    useStore();
+  const {
+    participants,
+    winners,
+    addWinner,
+    resetDraw,
+    updateWinner,
+    sessions,
+    isAudioEnabled,
+  } = useStore();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -108,12 +114,12 @@ export const DoorprizeMachine = () => {
 
   const displayBoxes = useMemo(
     () => (activeSession ? getDisplayBoxes(activeSession) : []),
-    [activeSession]
+    [activeSession],
   );
 
   const existingWinners = new Set(Object.values(winners).flat());
   const availableCandidates = participants.filter(
-    (p) => !existingWinners.has(p)
+    (p) => !existingWinners.has(p),
   );
 
   const sessionWinnersCount = displayBoxes.filter((box) => {
@@ -178,7 +184,7 @@ export const DoorprizeMachine = () => {
 
     if (availableCandidates.length < slotsToFill.length) {
       alert(
-        `Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`
+        `Not enough participants! Need ${slotsToFill.length}, but only have ${availableCandidates.length}.`,
       );
       return;
     }
@@ -347,7 +353,9 @@ export const DoorprizeMachine = () => {
                   {activeSession.name}
                 </h2>
                 <p className="text-slate-300 mt-1 text-sm">
-                  <span>{availableCandidates.length} potential winners left</span>
+                  <span>
+                    {availableCandidates.length} potential winners left
+                  </span>
                   <br />
                   <span>{displayBoxes.length}</span> Items
                 </p>
@@ -364,7 +372,7 @@ export const DoorprizeMachine = () => {
                         "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
                         activeSessionId === session.id
                           ? "bg-blue-500 text-white shadow-md"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                       )}
                     >
                       {session.name}
@@ -373,7 +381,9 @@ export const DoorprizeMachine = () => {
                         const sBoxes = getDisplayBoxes(session);
                         const sCompleted =
                           sBoxes.length > 0 &&
-                          sBoxes.every((b) => (winners[b.prize.id] || [])[b.index]);
+                          sBoxes.every(
+                            (b) => (winners[b.prize.id] || [])[b.index],
+                          );
                         return sCompleted ? (
                           <Check className="ml-1 size-3 text-green-400" />
                         ) : null;
@@ -393,7 +403,7 @@ export const DoorprizeMachine = () => {
                       "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
                       isAnimationPlaying
                         ? "bg-yellow-500 scale-95"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105"
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105",
                     )}
                   >
                     {isAnimationPlaying ? (
@@ -423,64 +433,72 @@ export const DoorprizeMachine = () => {
                 title="prize boxes"
                 className="flex flex-wrap items-start justify-center gap-2"
               >
-                {activeSession.groupWinners ? (
-                  Array.from(new Set(displayBoxes.map(b => b.prize.id))).map((prizeId, idx) => {
-                    const boxesForPrize = displayBoxes.filter(b => b.prize.id === prizeId);
-                    const prize = boxesForPrize[0].prize;
-                    const prizeWinners = winners[prizeId] || [];
+                {activeSession.groupWinners
+                  ? Array.from(
+                      new Set(displayBoxes.map((b) => b.prize.id)),
+                    ).map((prizeId, idx) => {
+                      const boxesForPrize = displayBoxes.filter(
+                        (b) => b.prize.id === prizeId,
+                      );
+                      const prize = boxesForPrize[0].prize;
+                      const prizeWinners = winners[prizeId] || [];
 
-                    const winnerNames = Array.from({ length: prize.quantity }).map((_, i) => prizeWinners[i]);
-                    const isRolling = isAnimationPlaying && boxesForPrize.some(b => drawingKeys.has(b.key));
+                      const winnerNames = Array.from({
+                        length: prize.quantity,
+                      }).map((_, i) => prizeWinners[i]);
+                      const isRolling =
+                        isAnimationPlaying &&
+                        boxesForPrize.some((b) => drawingKeys.has(b.key));
 
-                    const handleGroupReshuffle = (indexInGroup?: number) => {
-                      if (indexInGroup !== undefined) {
-                        const targetBox = boxesForPrize[indexInGroup];
-                        if (targetBox) handleReshuffleClick(targetBox);
-                      } else {
-                        // Fallback if quantity is 1 but groupWinners is true
-                        const targetBox = boxesForPrize[0];
-                        if (targetBox) handleReshuffleClick(targetBox);
-                      }
-                    };
+                      const handleGroupReshuffle = (indexInGroup?: number) => {
+                        if (indexInGroup !== undefined) {
+                          const targetBox = boxesForPrize[indexInGroup];
+                          if (targetBox) handleReshuffleClick(targetBox);
+                        } else {
+                          // Fallback if quantity is 1 but groupWinners is true
+                          const targetBox = boxesForPrize[0];
+                          if (targetBox) handleReshuffleClick(targetBox);
+                        }
+                      };
 
-                    return (
-                      <PrizeBox
-                        key={prizeId}
-                        activeSessionId={activeSessionId}
-                        prizeName={prize.name}
-                        winnerName={winnerNames}
-                        quantity={prize.quantity}
-                        candidates={availableCandidates}
-                        isRolling={isRolling}
-                        delay={idx}
-                        baseDuration={dynamicBaseDuration}
-                        onReshuffle={handleGroupReshuffle}
-                        allowReshuffle={activeSession.allowReshuffle}
-                      />
-                    );
-                  })
-                ) : (
-                  displayBoxes.map((box, idx) => {
-                    const prizeWinners = winners[box.prize.id] || [];
-                    const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
+                      return (
+                        <PrizeBox
+                          key={prizeId}
+                          activeSessionId={activeSessionId}
+                          prizeName={prize.name}
+                          winnerName={winnerNames}
+                          quantity={prize.quantity}
+                          candidates={availableCandidates}
+                          isRolling={isRolling}
+                          delay={idx}
+                          baseDuration={dynamicBaseDuration}
+                          onReshuffle={handleGroupReshuffle}
+                          allowReshuffle={activeSession.allowReshuffle}
+                        />
+                      );
+                    })
+                  : displayBoxes.map((box, idx) => {
+                      const prizeWinners = winners[box.prize.id] || [];
+                      const winnerName = prizeWinners[box.index]; // winner for this specific instance (0-indexed)
 
-                    return (
-                      <PrizeBox
-                        key={box.key}
-                        activeSessionId={activeSessionId}
-                        prizeName={box.prize.name}
-                        winnerName={winnerName}
-                        candidates={availableCandidates}
-                        // Only roll if explicitly part of current draw
-                        isRolling={isAnimationPlaying && drawingKeys.has(box.key)}
-                        delay={idx} // Stagger effect
-                        baseDuration={dynamicBaseDuration}
-                        onReshuffle={() => handleReshuffleClick(box)}
-                        allowReshuffle={activeSession.allowReshuffle}
-                      />
-                    );
-                  })
-                )}
+                      return (
+                        <PrizeBox
+                          key={box.key}
+                          activeSessionId={activeSessionId}
+                          prizeName={box.prize.name}
+                          winnerName={winnerName}
+                          candidates={availableCandidates}
+                          // Only roll if explicitly part of current draw
+                          isRolling={
+                            isAnimationPlaying && drawingKeys.has(box.key)
+                          }
+                          delay={idx} // Stagger effect
+                          baseDuration={dynamicBaseDuration}
+                          onReshuffle={() => handleReshuffleClick(box)}
+                          allowReshuffle={activeSession.allowReshuffle}
+                        />
+                      );
+                    })}
               </div>
             </div>
           </div>
@@ -513,20 +531,7 @@ export const DoorprizeMachine = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Audio Toggle Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="fixed bottom-6 right-6 rounded-full size-8 bg-slate-800/80 backdrop-blur-sm border-slate-700 text-white hover:bg-slate-700 shadow-xl z-50 cursor-pointer transition-all hover:scale-105"
-        onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-        title={isAudioEnabled ? "Mute Audio" : "Unmute Audio"}
-      >
-        {isAudioEnabled ? (
-          <Volume2 className="w-3 h-3" />
-        ) : (
-          <VolumeX className="w-3 h-3 text-slate-400" />
-        )}
-      </Button>
+      {/* Moved */}
     </div>
   );
 };

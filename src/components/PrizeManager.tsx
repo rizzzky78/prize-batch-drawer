@@ -28,6 +28,8 @@ import {
   ChevronUp,
   Check,
   Info,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -41,7 +43,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { SessionData } from "@/data/prizes";
 import { PrizeImporter } from "./PrizeImporter";
 
 export const PrizeManager = () => {
@@ -51,12 +52,12 @@ export const PrizeManager = () => {
   const [quantity, setQuantity] = useState("1");
   const [allowReshuffle, setAllowReshuffle] = useState(false);
   const [groupWinners, setGroupWinners] = useState(false);
-
   const sessions = useStore((state) => state.sessions);
   const addPrize = useStore((state) => state.addPrize);
   const importPrizes = useStore((state) => state.importPrizes);
   const removePrize = useStore((state) => state.removePrize);
   const resetPrizes = useStore((state) => state.resetPrizes);
+
   const { resetDraw } = useStore();
 
   // Memoize unique session names for the suggestion list
@@ -113,7 +114,7 @@ export const PrizeManager = () => {
   };
 
   return (
-    <Card className="w-full bg-transparent border-none h-full flex flex-col border-t-4 rounded-none shadow-none border-t-slate-900/50">
+    <Card className="w-full bg-white/5 rounded-3xl border-0 border-none h-full flex flex-col shadow-none border-t-slate-900/50">
       <CardHeader className="pb-3 space-y-1">
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-xl">
