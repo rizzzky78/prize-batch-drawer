@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { HelpTip, Hint } from "./HelpTip";
+import { HelpTip, Hint } from "./help-tip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -44,7 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { PrizeImporter } from "./PrizeImporter";
+import { PrizeImporter } from "./prize-importer";
 
 export const PrizeManager = () => {
   const [sessionName, setSessionName] = useState("");

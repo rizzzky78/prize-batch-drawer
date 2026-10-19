@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useTranslation } from "@/lib/translations";
 import { cn } from "@/lib/utils";
-import { HelpTip } from "./HelpTip";
+import { HelpTip } from "./help-tip";
 
 // First-run checklist; each step ticks itself off from store state.
 export const SetupGuide = () => {

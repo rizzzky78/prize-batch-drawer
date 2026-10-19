@@ -20,8 +20,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ParticipantImporter } from "./ParticipantImporter";
-import { HelpTip, Hint } from "./HelpTip";
+import { ParticipantImporter } from "./participant-importer";
+import { HelpTip, Hint } from "./help-tip";
 import { cn } from "@/lib/utils";
 
 export const ParticipantManager = () => {

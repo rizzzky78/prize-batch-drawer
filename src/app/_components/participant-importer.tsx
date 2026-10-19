@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import * as xlsx from "xlsx";
 import { useTranslation } from "@/lib/translations";
-import { HelpTip, Hint } from "./HelpTip";
+import { HelpTip, Hint } from "./help-tip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

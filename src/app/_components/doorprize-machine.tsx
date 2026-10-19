@@ -4,15 +4,15 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import { useTranslation } from "@/lib/translations";
 import { SessionData, PrizeItem } from "@/data/prizes";
-import { PrizeBox } from "./PrizeBox";
+import { PrizeBox } from "./prize-box";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Trophy, Check, AlertCircle, Pencil, Users, Gift } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpTip, Hint } from "./HelpTip";
+import { HelpTip, Hint } from "./help-tip";
 import { cn } from "@/lib/utils";
 import { shuffleWithRandomOrg } from "@/lib/random";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import confetti from "canvas-confetti";
 import {
   AlertDialog,

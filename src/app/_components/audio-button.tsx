@@ -1,10 +1,10 @@
 "use client";
 
 import { Volume2, VolumeX } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { useStore } from "@/store/useStore";
 import { useTranslation } from "@/lib/translations";
-import { Hint } from "./HelpTip";
+import { Hint } from "./help-tip";
 
 export const AudioButton = () => {
   const isAudioEnabled = useStore((state) => state.isAudioEnabled);

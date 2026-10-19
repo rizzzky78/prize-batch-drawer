@@ -1,10 +1,10 @@
-import { DoorprizeMachine } from "@/components/DoorprizeMachine";
-import { ParticipantManager } from "@/components/ParticipantManager";
-import { PrizeManager } from "@/components/PrizeManager";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { DoorprizeMachine } from "./_components/doorprize-machine";
+import { ParticipantManager } from "./_components/participant-manager";
+import { PrizeManager } from "./_components/prize-manager";
+import { LanguageSwitcher } from "./_components/language-switcher";
 import Image from "next/image";
-import { AudioButton } from "@/components/AudioButton";
-import { SetupGuide } from "@/components/SetupGuide";
+import { AudioButton } from "./_components/audio-button";
+import { SetupGuide } from "./_components/setup-guide";
 
 export const metadata = {
   title: "Collaboration FOC I | Pertamina Patra Niaga",
