@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", ibmPlexSans.variable)}>
+    <html lang="en" className={cn("dark font-sans", ibmPlexSans.variable)}>
       <body
         className={`${nunito.variable} ${roboto.variable} ${excon.variable} antialiased `}
       >

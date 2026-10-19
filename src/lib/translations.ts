@@ -109,6 +109,47 @@ const en = {
     importPrizesButton: (n: number) =>
       `Import ${n > 0 ? n : ""} Prize${n === 1 ? "" : "s"}`,
   },
+  setup: {
+    title: "Event Setup",
+    subtitle: "Prepare the draw in three steps — everything is saved in this browser automatically.",
+    step1: "Add prizes & sessions",
+    step2: "Add participants",
+    step3: "Scroll up and press DRAW",
+    storageHint:
+      "Data is stored in this browser only (localStorage). Opening the app on another browser or device starts empty, and clearing browser data erases it.",
+  },
+  help: {
+    eventName: "Click the title to rename your event. Changes are saved automatically.",
+    potentialWinners:
+      "Participants who haven't won yet. Each person can win only once across all sessions.",
+    sessions:
+      "Each session is drawn separately. Pick one here; a ✓ means every prize in it has a winner. Switching is locked while a draw is running.",
+    draw: "Draws winners for every empty prize slot in this session at once. Takes about 14 seconds with sound and confetti.",
+    drawNoParticipants: "No eligible participants left. Add participants below first.",
+    reshuffle:
+      "Replace this winner (e.g. not present) with a new random participant who hasn't won yet.",
+    sessionName:
+      "Type a new name to create a session, or pick an existing one to add more prizes to it. Prizes in the same session are drawn together.",
+    prizeName: "What the winner receives, e.g. \"Smart TV 43 inch\".",
+    quantity: "How many units of this prize. Each unit gets its own winner.",
+    sessionSettings:
+      "These options apply to the whole session. Adding a prize to an existing session overwrites its previous options.",
+    importPrizes:
+      "Bulk-add sessions and prizes from an .xlsx / .xls file. A format guide is shown inside.",
+    resetWinner:
+      "Clears draw results in ALL sessions so you can draw again. Prizes and participants are kept.",
+    resetPrizes: "Deletes every session and prize (and their winners). Participants are kept.",
+    removePrize: "Remove this prize. Its recorded winners are cleared too.",
+    participantInput: "Type a name and press Enter. Duplicate names are rejected.",
+    importParticipants:
+      "Bulk-add names from an .xlsx / .xls file. Names already in the list are skipped.",
+    resetParticipants:
+      "Removes everyone who hasn't won. Winners stay so draw results remain valid.",
+    winnerMark:
+      "👑 marks a winner. Winners can't be removed — use \"Reset Winner\" in the Prize Pool first.",
+    audio: "Toggle the drumroll and applause sound played during a draw.",
+    language: "Switch the interface language.",
+  },
   audio: {
     label: "Audio Play",
     mute: "Mute Audio",
@@ -227,6 +268,47 @@ const id: typeof en = {
       "Mengelompokkan pemenang hadiah yang sama ke dalam satu kotak visual untuk semua sesi yang diimpor.",
     noRowsSelected: "Tidak ada baris yang dipilih untuk diimpor.",
     importPrizesButton: (n: number) => `Impor ${n > 0 ? n : ""} Hadiah`,
+  },
+  setup: {
+    title: "Persiapan Acara",
+    subtitle: "Siapkan undian dalam tiga langkah — semua data tersimpan otomatis di browser ini.",
+    step1: "Tambah hadiah & sesi",
+    step2: "Tambah peserta",
+    step3: "Gulir ke atas lalu tekan UNDI",
+    storageHint:
+      "Data hanya tersimpan di browser ini (localStorage). Membuka aplikasi di browser atau perangkat lain akan mulai kosong, dan menghapus data browser akan menghapusnya.",
+  },
+  help: {
+    eventName: "Klik judul untuk mengganti nama acara. Perubahan tersimpan otomatis.",
+    potentialWinners:
+      "Peserta yang belum menang. Setiap orang hanya bisa menang satu kali di semua sesi.",
+    sessions:
+      "Setiap sesi diundi terpisah. Pilih sesi di sini; tanda ✓ berarti semua hadiahnya sudah punya pemenang. Tidak bisa berpindah sesi saat undian berjalan.",
+    draw: "Mengundi pemenang untuk semua slot hadiah yang masih kosong di sesi ini sekaligus. Berlangsung sekitar 14 detik dengan suara dan konfeti.",
+    drawNoParticipants: "Tidak ada peserta yang tersisa. Tambahkan peserta di bawah terlebih dahulu.",
+    reshuffle:
+      "Ganti pemenang ini (mis. tidak hadir) dengan peserta acak baru yang belum menang.",
+    sessionName:
+      "Ketik nama baru untuk membuat sesi, atau pilih sesi yang ada untuk menambah hadiah. Hadiah dalam sesi yang sama diundi bersamaan.",
+    prizeName: "Hadiah yang diterima pemenang, mis. \"Smart TV 43 inch\".",
+    quantity: "Jumlah unit hadiah ini. Setiap unit mendapat satu pemenang.",
+    sessionSettings:
+      "Opsi ini berlaku untuk seluruh sesi. Menambah hadiah ke sesi yang sudah ada akan menimpa opsi sebelumnya.",
+    importPrizes:
+      "Tambah banyak sesi dan hadiah sekaligus dari file .xlsx / .xls. Panduan format tersedia di dalamnya.",
+    resetWinner:
+      "Menghapus hasil undian di SEMUA sesi agar bisa diundi ulang. Hadiah dan peserta tetap ada.",
+    resetPrizes: "Menghapus semua sesi dan hadiah (beserta pemenangnya). Peserta tetap ada.",
+    removePrize: "Hapus hadiah ini. Pemenang yang tercatat juga ikut terhapus.",
+    participantInput: "Ketik nama lalu tekan Enter. Nama duplikat akan ditolak.",
+    importParticipants:
+      "Tambah banyak nama sekaligus dari file .xlsx / .xls. Nama yang sudah ada akan dilewati.",
+    resetParticipants:
+      "Menghapus semua peserta yang belum menang. Pemenang tetap ada agar hasil undian tetap valid.",
+    winnerMark:
+      "👑 menandakan pemenang. Pemenang tidak bisa dihapus — gunakan \"Reset Pemenang\" di Kumpulan Hadiah terlebih dahulu.",
+    audio: "Nyalakan/matikan suara drumroll dan tepuk tangan saat undian.",
+    language: "Ganti bahasa antarmuka.",
   },
   audio: {
     label: "Audio Play",

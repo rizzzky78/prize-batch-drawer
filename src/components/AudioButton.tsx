@@ -4,6 +4,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "./ui/button";
 import { useStore } from "@/store/useStore";
 import { useTranslation } from "@/lib/translations";
+import { Hint } from "./HelpTip";
 
 export const AudioButton = () => {
   const isAudioEnabled = useStore((state) => state.isAudioEnabled);
@@ -11,18 +12,21 @@ export const AudioButton = () => {
   const t = useTranslation();
 
   return (
-    <Button
-      variant="secondary"
-      className="cursor-pointer"
-      onClick={() => setAudioEnabled(!isAudioEnabled)}
-      title={isAudioEnabled ? t.audio.mute : t.audio.unmute}
-    >
-      {t.audio.label}
-      {isAudioEnabled ? (
-        <Volume2 className="w-4 h-4" />
-      ) : (
-        <VolumeX className="w-4 h-4 text-slate-400" />
-      )}
-    </Button>
+    <Hint text={t.help.audio}>
+      <Button
+        variant="outline"
+        className="cursor-pointer border-white/10 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white"
+        onClick={() => setAudioEnabled(!isAudioEnabled)}
+        aria-label={isAudioEnabled ? t.audio.mute : t.audio.unmute}
+        aria-pressed={isAudioEnabled}
+      >
+        {isAudioEnabled ? (
+          <Volume2 className="w-4 h-4 text-sky-300" />
+        ) : (
+          <VolumeX className="w-4 h-4 text-slate-500" />
+        )}
+        {t.audio.label}
+      </Button>
+    </Hint>
   );
 };

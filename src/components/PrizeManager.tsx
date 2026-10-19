@@ -28,10 +28,10 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
-  Info,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { HelpTip, Hint } from "./HelpTip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -115,29 +115,37 @@ export const PrizeManager = () => {
     }
   };
 
+  const inputClass =
+    "bg-black/20 border-white/10 text-slate-100 placeholder:text-slate-500 focus-visible:border-primary";
+
   return (
-    <Card className="w-full bg-white/5 rounded-3xl border-0 border-none h-full flex flex-col shadow-none border-t-slate-900/50">
+    <Card className="w-full bg-white/[0.03] rounded-3xl ring-1 ring-white/10 h-full flex flex-col shadow-none">
       <CardHeader className="pb-3 space-y-1">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-xl">
-            <Gift className="w-5 h-5" />
+            <span className="grid place-items-center size-9 rounded-xl bg-amber-400/15 text-amber-300 ring-1 ring-amber-300/20">
+              <Gift className="w-5 h-5" />
+            </span>
             {t.prizes.title}
-            <Badge variant="secondary" className="ml-2 text-xs font-normal">
+            <Badge variant="secondary" className="ml-1 text-xs font-normal tabular-nums">
               {totalPrizes} {t.prizes.items}
             </Badge>
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <PrizeImporter onImport={handleImportPrizes} />
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  size="sm"
-                  className="text-red-500 bg-red-50 hover:bg-red-100"
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  {t.prizes.resetWinner}
-                </Button>
-              </AlertDialogTrigger>
+              <Hint text={t.help.resetWinner}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="cursor-pointer border-amber-300/30 bg-transparent text-amber-200 hover:bg-amber-300/10 hover:text-amber-100"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    {t.prizes.resetWinner}
+                  </Button>
+                </AlertDialogTrigger>
+              </Hint>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t.prizes.resetAllHeading}</AlertDialogTitle>
@@ -151,7 +159,7 @@ export const PrizeManager = () => {
                     onClick={() => {
                       resetDraw();
                     }}
-                    className="bg-red-500 hover:bg-red-600"
+                    className="bg-rose-600 text-white hover:bg-rose-500"
                   >
                     {t.prizes.confirmReset}
                   </AlertDialogAction>
@@ -159,18 +167,20 @@ export const PrizeManager = () => {
               </AlertDialogContent>
             </AlertDialog>
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50"
-                  disabled={totalPrizes === 0}
-                  title={t.prizes.resetAllTitle}
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  {t.participants.reset}
-                </Button>
-              </AlertDialogTrigger>
+              <Hint text={t.help.resetPrizes}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="cursor-pointer"
+                    disabled={totalPrizes === 0}
+                    aria-label={t.prizes.resetAllTitle}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {t.participants.reset}
+                  </Button>
+                </AlertDialogTrigger>
+              </Hint>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t.prizes.resetAllHeading}</AlertDialogTitle>
@@ -180,10 +190,7 @@ export const PrizeManager = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={resetPrizes}
-                    className="bg-red-500 hover:bg-red-600"
-                  >
+                  <AlertDialogAction onClick={resetPrizes} className="bg-rose-600 text-white hover:bg-rose-500">
                     {t.prizes.resetAllConfirm}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -193,12 +200,13 @@ export const PrizeManager = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 pt-4 flex flex-col gap-4 overflow-hidden">
+      <CardContent className="flex-1 pt-2 flex flex-col gap-6 overflow-hidden">
         {/* Input Form */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end rounded-2xl bg-black/20 ring-1 ring-white/5 p-4">
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
-            <Label htmlFor="session-name" className="text-white">
+            <Label htmlFor="session-name" className="text-slate-200 gap-1.5">
               {t.prizes.sessionName}
+              <HelpTip text={t.help.sessionName} />
             </Label>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
@@ -221,7 +229,7 @@ export const PrizeManager = () => {
                       }
                     }}
                     onFocus={() => setOpen(true)}
-                    className="bg-slate-900/20 border-slate-700 text-slate-100 placeholder:text-slate-500 pr-8"
+                    className={cn(inputClass, "pr-8")}
                     autoComplete="off"
                   />
                   <div className="absolute right-2 top-2.5 text-slate-500 pointer-events-none">
@@ -234,12 +242,12 @@ export const PrizeManager = () => {
                 </div>
               </PopoverTrigger>
               <PopoverContent
-                className="w-(--radix-popover-trigger-width) p-1 bg-slate-900 border-slate-700 max-h-[200px] overflow-y-auto"
+                className="w-(--radix-popover-trigger-width) p-1 max-h-[200px] overflow-y-auto"
                 align="start"
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 {uniqueSessions.length === 0 ? (
-                  <div className="p-2 text-sm text-slate-500 text-center">
+                  <div className="p-2 text-sm text-slate-400 text-center">
                     {t.prizes.noPreviousSessions}
                   </div>
                 ) : (
@@ -252,18 +260,18 @@ export const PrizeManager = () => {
                         <button
                           key={s}
                           onClick={() => handleSessionSelect(s)}
-                          className="text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-slate-800 rounded-sm transition-colors flex items-center justify-between group"
+                          className="text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-between group cursor-pointer"
                         >
                           {s}
                           {sessionName === s && (
-                            <Check className="h-3 w-3 text-emerald-500" />
+                            <Check className="h-3 w-3 text-emerald-400" />
                           )}
                         </button>
                       ))}
                     {uniqueSessions.filter((s) =>
                       s.toLowerCase().includes(sessionName.toLowerCase()),
                     ).length === 0 && (
-                      <div className="p-2 text-sm text-slate-500 italic">
+                      <div className="p-2 text-sm text-slate-400 italic">
                         {t.prizes.noMatchingSession}
                       </div>
                     )}
@@ -273,8 +281,9 @@ export const PrizeManager = () => {
             </Popover>
           </div>
           <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
-            <Label htmlFor="prize-name" className="text-white">
+            <Label htmlFor="prize-name" className="text-slate-200 gap-1.5">
               {t.prizes.prizeName}
+              <HelpTip text={t.help.prizeName} />
             </Label>
             <Input
               id="prize-name"
@@ -282,12 +291,13 @@ export const PrizeManager = () => {
               value={prizeName}
               onChange={(e) => setPrizeName(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="bg-slate-900/20 border-slate-700 text-slate-100 placeholder:text-slate-500"
+              className={inputClass}
             />
           </div>
           <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
-            <Label htmlFor="quantity" className="text-white">
+            <Label htmlFor="quantity" className="text-slate-200 gap-1.5">
               {t.prizes.quantity}
+              <HelpTip text={t.help.quantity} />
             </Label>
             <Input
               id="quantity"
@@ -297,69 +307,42 @@ export const PrizeManager = () => {
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="bg-slate-900/20 border-slate-700 text-slate-100 placeholder:text-slate-500"
+              className={inputClass}
             />
           </div>
 
-          <div className="col-span-1 -mb-1.5 md:col-span-2 flex flex-col gap-2 items-start justify-center pb-2">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center space-x-2">
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="allowReshuffle"
-                      className="h-4 w-4 rounded border-slate-700 bg-slate-900/20 text-blue-600 focus:ring-blue-600 focus:ring-offset-slate-900"
-                      checked={allowReshuffle}
-                      onChange={(e) => setAllowReshuffle(e.target.checked)}
-                    />
-                    <Label
-                      htmlFor="allowReshuffle"
-                      className="text-white cursor-pointer text-xs"
-                    >
-                      {t.prizes.allowReshuffle}
-                    </Label>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[250px] text-xs">
-                    <p>{t.prizes.allowReshuffleTooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="groupWinners"
-                      className="h-4 w-4 rounded border-slate-700 bg-slate-900/20 text-blue-600 focus:ring-blue-600 focus:ring-offset-slate-900"
-                      checked={groupWinners}
-                      onChange={(e) => setGroupWinners(e.target.checked)}
-                    />
-                    <Label
-                      htmlFor="groupWinners"
-                      className="text-white cursor-pointer text-xs"
-                    >
-                      {t.prizes.groupWinners}
-                    </Label>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[250px] text-xs">
-                    <p>{t.prizes.groupWinnersTooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+          <div className="col-span-1 md:col-span-2 flex flex-col gap-2.5 justify-center pb-1">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="allowReshuffle"
+                checked={allowReshuffle}
+                onCheckedChange={(c) => setAllowReshuffle(c === true)}
+              />
+              <Label htmlFor="allowReshuffle" className="text-slate-200 cursor-pointer text-xs">
+                {t.prizes.allowReshuffle}
+              </Label>
+              <HelpTip text={`${t.prizes.allowReshuffleTooltip} ${t.help.sessionSettings}`} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="groupWinners"
+                checked={groupWinners}
+                onCheckedChange={(c) => setGroupWinners(c === true)}
+              />
+              <Label htmlFor="groupWinners" className="text-slate-200 cursor-pointer text-xs">
+                {t.prizes.groupWinners}
+              </Label>
+              <HelpTip text={`${t.prizes.groupWinnersTooltip} ${t.help.sessionSettings}`} />
             </div>
           </div>
 
           <div className="col-span-1 md:col-span-2 flex justify-end">
             <Button
-              variant="secondary"
-              // size="icon"
-              className="w-full md:w-auto"
+              className="w-full md:w-auto cursor-pointer"
               onClick={handleAdd}
               disabled={!sessionName.trim() || !prizeName.trim()}
-              title={t.prizes.addPrize}
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               {t.prizes.addPrize}
             </Button>
           </div>
@@ -368,44 +351,57 @@ export const PrizeManager = () => {
         {/* Prize List */}
         <ScrollArea className="flex-1 -mx-4 px-4 h-[50vh]">
           {sessions.length === 0 ? (
-            <div className="h-[200px] flex flex-col items-center justify-center py-8 text-slate-500 text-sm italic">
-              <Package className="w-12 h-12 mb-2 opacity-20" />
+            <div className="h-[200px] flex flex-col items-center justify-center py-8 text-slate-500 text-sm rounded-2xl border border-dashed border-white/10">
+              <Package className="w-10 h-10 mb-3 opacity-40" />
               {t.prizes.empty}
             </div>
           ) : (
             <div className="space-y-6 pb-6">
               {sessions.map((session) => (
-                <div key={session.id} className="space-y-2">
-                  <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center">
+                <div key={session.id} className="space-y-2.5">
+                  <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex flex-wrap items-center gap-2">
                     {session.name}
-                    <span className="ml-2 text-xs font-normal text-slate-300 capitalize bg-slate-700/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-normal normal-case text-slate-400 bg-white/5 ring-1 ring-white/10 px-2 py-0.5 rounded-full tabular-nums">
                       {session.prizes.reduce((s, p) => s + p.quantity, 0)}{" "}
                       {t.prizes.items}
                     </span>
+                    {session.allowReshuffle && (
+                      <span className="text-[11px] font-normal normal-case text-sky-300 bg-sky-400/10 px-2 py-0.5 rounded-full">
+                        {t.prizes.allowReshuffle}
+                      </span>
+                    )}
+                    {session.groupWinners && (
+                      <span className="text-[11px] font-normal normal-case text-violet-300 bg-violet-400/10 px-2 py-0.5 rounded-full">
+                        {t.prizes.groupWinners}
+                      </span>
+                    )}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {session.prizes.map((prize) => (
                       <div
                         key={prize.id}
-                        className="group flex items-center justify-between bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm hover:bg-white/10 transition-colors"
+                        className="group flex items-center justify-between bg-white/[0.04] ring-1 ring-white/10 rounded-xl px-3 py-2.5 text-sm hover:bg-white/[0.07] transition-colors"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <Badge
-                            variant="outline"
-                            className="text-yellow-400 border-yellow-400/30 h-6 w-6 flex items-center justify-center p-0 shrink-0"
-                          >
+                          <span className="grid place-items-center h-6 min-w-6 px-1.5 rounded-lg bg-amber-400/15 text-amber-300 text-xs font-semibold tabular-nums shrink-0">
                             {prize.quantity}
-                          </Badge>
+                          </span>
                           <span className="text-slate-200 truncate">
                             {prize.name}
                           </span>
                         </div>
-                        <button
-                          onClick={() => removePrize(prize.id)}
-                          className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => removePrize(prize.id)}
+                              aria-label={t.help.removePrize}
+                              className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ml-2 shrink-0 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="text-xs">{t.help.removePrize}</TooltipContent>
+                        </Tooltip>
                       </div>
                     ))}
                   </div>

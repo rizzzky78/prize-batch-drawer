@@ -7,7 +7,9 @@ import { SessionData, PrizeItem } from "@/data/prizes";
 import { PrizeBox } from "./PrizeBox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Trophy, RotateCcw, Grip, Check, AlertCircle } from "lucide-react";
+import { Play, Trophy, Check, AlertCircle, Pencil, Users, Gift } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpTip, Hint } from "./HelpTip";
 import { cn } from "@/lib/utils";
 import { shuffleWithRandomOrg } from "@/lib/random";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -328,17 +330,28 @@ export const DoorprizeMachine = () => {
   /* Main Draw Area */
   return (
     <div className="min-h-screen flex flex-col w-full">
-      {/* Session Tabs */}
-      <div className="px-10 mx-auto">
+      {/* Event Title (editable) */}
+      <div className="px-4 sm:px-10 w-full max-w-5xl mx-auto">
         <div className="pt-14 relative group">
-          <input
-            value={useStore((state) => state.eventName)}
-            onChange={(e) => useStore.getState().setEventName(e.target.value)}
-            className="text-5xl text-center font-semibold font-excon text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full"
-            placeholder="Edit Label Acara"
-          />
-          <span className="absolute top-0 -right-6 font-excon! opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
-            <Grip className="w-4 h-4" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <input
+                value={useStore((state) => state.eventName)}
+                onChange={(e) => useStore.getState().setEventName(e.target.value)}
+                aria-label={t.help.eventName}
+                className="text-4xl sm:text-5xl text-center font-semibold font-excon text-white bg-transparent border-none outline-none focus:ring-0 placeholder:text-white/50 w-full rounded-2xl py-2 transition-colors hover:bg-white/[0.03] focus:bg-white/[0.05] drop-shadow-[0_2px_24px_oklch(0.6_0.2_258/0.45)]"
+                placeholder="Edit Label Acara"
+              />
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={4} className="text-xs">
+              {t.help.eventName}
+            </TooltipContent>
+          </Tooltip>
+          <span
+            aria-hidden
+            className="absolute top-16 right-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity text-slate-400"
+          >
+            <Pencil className="w-4 h-4" />
           </span>
         </div>
       </div>
@@ -346,88 +359,111 @@ export const DoorprizeMachine = () => {
       <div className="p-4 overflow-y-auto min-h-[500px]">
         {!activeSession ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
-            <AlertCircle className="w-16 h-16 mb-4 opacity-20" />
-            <h2 className="text-xl font-semibold mb-2">
+            <div className="grid place-items-center size-20 rounded-full bg-white/5 ring-1 ring-white/10 mb-5">
+              <AlertCircle className="w-9 h-9 opacity-60" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2 text-slate-200">
               {t.doorprize.noActiveSessionTitle}
             </h2>
-            <p>{t.doorprize.noActiveSessionBody}</p>
+            <p className="text-sm">{t.doorprize.noActiveSessionBody}</p>
           </div>
         ) : (
-          <div className="min-w-5xl w-full px-10 mx-auto">
-            <div className="flex items-center justify-between space-x-4 mb-6">
-              <div>
-                <h2 className="text-xl uppercase font-bold text-white">
+          <div className="w-full max-w-7xl px-0 sm:px-6 mx-auto">
+            {/* Control bar */}
+            <div className="mt-6 mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-md p-4 sm:p-5 shadow-2xl shadow-black/30">
+              <div className="min-w-0">
+                <h2 className="text-xl uppercase font-bold text-white tracking-wide truncate">
                   {activeSession.name}
                 </h2>
-                <p className="text-slate-300 mt-1 text-sm">
-                  <span>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 ring-1 ring-white/10 px-2.5 py-1">
+                    <Users className="size-3.5 text-sky-300" />
                     {t.doorprize.potentialWinnersLeft(availableCandidates.length)}
+                    <HelpTip text={t.help.potentialWinners} />
                   </span>
-                  <br />
-                  <span>{displayBoxes.length}</span> {t.doorprize.items}
-                </p>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 ring-1 ring-white/10 px-2.5 py-1">
+                    <Gift className="size-3.5 text-amber-300" />
+                    <span className="tabular-nums">{sessionWinnersCount}/{displayBoxes.length}</span> {t.doorprize.items}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="flex p-[14px] gap-2 m-3 border border-slate-600/50 z-10 shadow-sm rounded-full overflow-x-auto">
-                  {sessions.map((session) => (
-                    <button
-                      key={session.id}
-                      onClick={() => setActiveSessionId(session.id)}
-                      disabled={isAnimationPlaying}
-                      className={cn(
-                        "px-3 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap",
-                        activeSessionId === session.id
-                          ? "bg-blue-500 text-white shadow-md"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200",
-                      )}
-                    >
-                      {session.name}
-                      {/* Show progress dot */}
-                      {(() => {
-                        const sBoxes = getDisplayBoxes(session);
-                        const sCompleted =
-                          sBoxes.length > 0 &&
-                          sBoxes.every(
-                            (b) => (winners[b.prize.id] || [])[b.index],
-                          );
-                        return sCompleted ? (
-                          <Check className="ml-1 size-3 text-green-400" />
-                        ) : null;
-                      })()}
-                    </button>
-                  ))}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
+                <div className="flex items-center gap-1 min-w-0">
+                  <div
+                    role="tablist"
+                    className="flex p-1 gap-1 rounded-full bg-black/30 ring-1 ring-white/10 overflow-x-auto min-w-0"
+                  >
+                    {sessions.map((session) => (
+                      <button
+                        key={session.id}
+                        role="tab"
+                        aria-selected={activeSessionId === session.id}
+                        onClick={() => setActiveSessionId(session.id)}
+                        disabled={isAnimationPlaying}
+                        className={cn(
+                          "px-3.5 cursor-pointer flex items-center py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60",
+                          activeSessionId === session.id
+                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+                            : "text-slate-300 hover:bg-white/10 hover:text-white",
+                        )}
+                      >
+                        {session.name}
+                        {/* Show progress dot */}
+                        {(() => {
+                          const sBoxes = getDisplayBoxes(session);
+                          const sCompleted =
+                            sBoxes.length > 0 &&
+                            sBoxes.every(
+                              (b) => (winners[b.prize.id] || [])[b.index],
+                            );
+                          return sCompleted ? (
+                            <Check className="ml-1 size-3 text-emerald-300" />
+                          ) : null;
+                        })()}
+                      </button>
+                    ))}
+                  </div>
+                  <HelpTip text={t.help.sessions} className="ml-1" />
                 </div>
 
                 {!isSessionComplete && (
-                  <Button
-                    size="lg"
-                    onClick={handleStartDraw}
-                    disabled={
-                      isAnimationPlaying || availableCandidates.length === 0
+                  <Hint
+                    text={
+                      availableCandidates.length === 0
+                        ? t.help.drawNoParticipants
+                        : t.help.draw
                     }
-                    className={cn(
-                      "cursor-pointer rounded-full h-15 px-5 text-lg shadow-xl transition-all font-bold tracking-wide",
-                      isAnimationPlaying
-                        ? "bg-yellow-500 scale-95"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105",
-                    )}
                   >
-                    {isAnimationPlaying ? (
-                      <span className="flex items-center animate-pulse">
-                        {t.doorprize.runningDraw}
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <Play className="fill-current w-6 h-6 mr-2" />
-                        {t.doorprize.draw}
-                      </span>
-                    )}
-                  </Button>
+                    <Button
+                      size="lg"
+                      onClick={handleStartDraw}
+                      disabled={
+                        isAnimationPlaying || availableCandidates.length === 0
+                      }
+                      className={cn(
+                        "cursor-pointer rounded-full h-14 px-7 text-lg shadow-xl transition-all font-bold tracking-wide w-full sm:w-auto",
+                        isAnimationPlaying
+                          ? "bg-amber-400 text-amber-950 scale-95"
+                          : "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-indigo-600/30 hover:brightness-110 hover:scale-105",
+                      )}
+                    >
+                      {isAnimationPlaying ? (
+                        <span className="flex items-center animate-pulse">
+                          {t.doorprize.runningDraw}
+                        </span>
+                      ) : (
+                        <span className="flex items-center">
+                          <Play className="fill-current w-6 h-6 mr-2" />
+                          {t.doorprize.draw}
+                        </span>
+                      )}
+                    </Button>
+                  </Hint>
                 )}
                 {isSessionComplete && (
-                  <div className="px-5 py-3 h-15 text-sm bg-green-100 text-green-800 rounded-full flex items-center font-bold">
-                    <Trophy className="w-6 h-6 mr-2" />
+                  <div className="px-5 h-14 text-sm bg-emerald-400/15 text-emerald-200 ring-1 ring-emerald-400/40 rounded-full flex items-center justify-center font-bold">
+                    <Trophy className="w-5 h-5 mr-2" />
                     {t.doorprize.drawComplete}
                   </div>
                 )}
@@ -436,9 +472,7 @@ export const DoorprizeMachine = () => {
 
             {/* Boxes Grid */}
             <div className="min-h-[60vh] flex items-center justify-center">
-              <div
-                title="prize boxes"
-                className="flex flex-wrap items-start justify-center gap-2"
+              <div className="flex flex-wrap items-start justify-center gap-3"
               >
                 {activeSession.groupWinners
                   ? Array.from(
@@ -528,7 +562,7 @@ export const DoorprizeMachine = () => {
             <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmReshuffle}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white"
+              className="bg-amber-400 hover:bg-amber-300 text-amber-950"
             >
               {t.doorprize.confirmReshuffle}
             </AlertDialogAction>

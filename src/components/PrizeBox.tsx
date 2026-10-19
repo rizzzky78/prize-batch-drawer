@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/translations";
+import { RefreshCw } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PrizeBoxProps {
   prizeName: string;
@@ -90,18 +92,27 @@ export const PrizeBox = ({
     >
       <Card
         className={cn(
-          "flex flex-col rounded-lg items-center justify-center p-2 shadow-md border-2 transition-colors duration-300 overflow-hidden relative",
+          "flex flex-col gap-0 rounded-2xl items-center justify-center p-2 ring-0 border transition-all duration-300 overflow-hidden relative backdrop-blur-sm",
           quantity > 1 ? "min-h-[120px] py-4" : "h-24 sm:h-26",
           isRolling
-            ? "border-yellow-400 bg-yellow-50"
+            ? "border-amber-300/80 bg-amber-300/10 shadow-[0_0_32px_-6px] shadow-amber-300/50"
             : hasWinner
-              ? "border-green-500 bg-green-50"
-              : "border-slate-200"
+              ? "border-emerald-400/60 bg-emerald-400/10 shadow-[0_0_24px_-10px] shadow-emerald-400/60"
+              : "border-white/10 bg-white/[0.04]"
         )}
       >
-        <div className="absolute top-2 left-0 w-full text-center flex justify-center">
-          <div className="text-[10px] bg-slate-200 py-1 px-3 font-semibold rounded-full w-fit sm:text-xs text-black tracking-wider truncate block">
-            <p className="font-excon">{prizeName} {quantity > 1 && `(×${quantity})`}</p>
+        <div className="absolute top-2 left-0 w-full text-center flex justify-center px-2">
+          <div
+            className={cn(
+              "text-[10px] py-1 px-3 font-semibold rounded-full max-w-full sm:text-xs tracking-wider truncate block",
+              isRolling
+                ? "bg-amber-300 text-amber-950"
+                : hasWinner
+                  ? "bg-emerald-400 text-emerald-950"
+                  : "bg-white/10 text-slate-200"
+            )}
+          >
+            <p className="font-excon truncate">{prizeName} {quantity > 1 && `(×${quantity})`}</p>
           </div>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center pt-8 w-full gap-2">
@@ -112,10 +123,12 @@ export const PrizeBox = ({
               <div key={i} className="flex items-center justify-center gap-2 w-full px-2 group/item relative">
                 <span
                   className={cn(
-                    "font-bold text-center truncate w-full uppercase",
-                    isWinnerSet && !isRolling
-                      ? "text-green-700 text-sm sm:text-base"
-                      : "text-slate-800 text-sm"
+                    "font-bold text-center truncate w-full uppercase tabular-nums",
+                    isRolling
+                      ? "text-amber-100 text-sm"
+                      : isWinnerSet
+                        ? "text-emerald-200 text-sm sm:text-base"
+                        : "text-slate-500 text-sm"
                   )}
                 >
                   {name}
@@ -123,13 +136,18 @@ export const PrizeBox = ({
 
                 {/* Reshuffle Button INSIDE (Only for quantity > 1) */}
                 {quantity > 1 && isWinnerSet && !isRolling && allowReshuffle && onReshuffle && (
-                  <button
-                    onClick={() => onReshuffle(i)}
-                    className="absolute right-0 opacity-0 group-hover/item:opacity-100 text-xs rounded-full cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 border border-transparent hover:border-red-200 transition-all flex items-center justify-center bg-white shadow-sm"
-                    title={t.doorprize.reshuffleWinnerAction}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></svg>
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => onReshuffle(i)}
+                        aria-label={t.doorprize.reshuffleWinnerAction}
+                        className="absolute right-0 opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100 rounded-full cursor-pointer text-rose-300 hover:text-white hover:bg-rose-500 p-1.5 transition-all flex items-center justify-center bg-slate-900/90 ring-1 ring-white/10"
+                      >
+                        <RefreshCw className="size-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[240px] text-xs">{t.help.reshuffle}</TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             );
@@ -140,29 +158,18 @@ export const PrizeBox = ({
       {/* Reshuffle Button OUTSIDE (Only for quantity === 1) */}
       {quantity === 1 && hasWinner && !isRolling && allowReshuffle && onReshuffle && (
         <div className="flex justify-center mt-2 transition-all duration-300">
-          <button
-            onClick={() => onReshuffle()}
-            className="text-xs rounded-full cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 border border-transparent hover:border-red-200 transition-colors flex items-center gap-1"
-            title={t.doorprize.reshuffleWinnerAction}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-              <path d="M16 16h5v5" />
-            </svg>
-            {t.doorprize.reshuffle}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onReshuffle()}
+                className="text-xs rounded-full cursor-pointer text-rose-300 hover:text-white hover:bg-rose-500/80 px-2.5 py-1 ring-1 ring-rose-300/20 transition-colors flex items-center gap-1"
+              >
+                <RefreshCw className="size-3" />
+                {t.doorprize.reshuffle}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[240px] text-xs">{t.help.reshuffle}</TooltipContent>
+          </Tooltip>
         </div>
       )}
     </motion.div>

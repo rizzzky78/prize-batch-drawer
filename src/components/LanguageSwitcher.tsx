@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Languages, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Hint } from "./HelpTip";
 
 const LANGUAGES: { code: "id" | "en"; label: string }[] = [
   { code: "id", label: "Indonesia" },
@@ -21,19 +22,21 @@ export const LanguageSwitcher = () => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="bg-slate-800/80 backdrop-blur-sm border-slate-700 text-white hover:text-white hover:bg-slate-700 shadow-xl z-50 cursor-pointer transition-all hover:scale-105"
-          title={t.language.changeTitle}
-        >
-          {t.language.trigger}
-          <Languages className="w-3 h-3" />
-        </Button>
-      </PopoverTrigger>
+      <Hint text={t.help.language}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="cursor-pointer border-white/10 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white"
+            aria-label={t.language.changeTitle}
+          >
+            <Languages className="w-4 h-4 text-sky-300" />
+            {t.language.trigger}
+          </Button>
+        </PopoverTrigger>
+      </Hint>
       <PopoverContent
         align="end"
-        className="w-40 p-1 bg-slate-900 border-slate-700 rounded-2xl"
+        className="w-40 p-1 rounded-2xl"
       >
         {LANGUAGES.map(({ code, label }) => (
           <button
@@ -42,7 +45,7 @@ export const LanguageSwitcher = () => {
               setLanguage(code);
               setOpen(false);
             }}
-            className="w-full text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-slate-800 rounded-xl transition-colors flex items-center justify-between"
+            className="w-full text-left px-2 py-1.5 text-sm text-slate-200 hover:bg-white/10 rounded-xl cursor-pointer transition-colors flex items-center justify-between"
           >
             {label}
             <Check

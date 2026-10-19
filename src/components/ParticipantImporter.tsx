@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import * as xlsx from "xlsx";
 import { useTranslation } from "@/lib/translations";
+import { HelpTip, Hint } from "./HelpTip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -147,17 +148,19 @@ export const ParticipantImporter = ({
         if (!open) resetState();
       }}
     >
-      <PopoverTrigger asChild>
-        <Button
-          size="sm"
-          disabled={disabled}
-          className="gap-2"
-          title={t.importer.importFromExcelTitle}
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          {t.importer.importExcel}
-        </Button>
-      </PopoverTrigger>
+      <Hint text={t.help.importParticipants}>
+        <PopoverTrigger asChild>
+          <Button
+            size="sm"
+            disabled={disabled}
+            className="gap-2 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-500"
+            aria-label={t.importer.importFromExcelTitle}
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            {t.importer.importExcel}
+          </Button>
+        </PopoverTrigger>
+      </Hint>
       <PopoverContent className="w-80 sm:w-96 p-4" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -166,11 +169,11 @@ export const ParticipantImporter = ({
             </h4>
           </div>
 
-          <div className="rounded-md border border-slate-7000">
+          <div className="rounded-xl border border-white/10 bg-muted/30">
             <button
               type="button"
               onClick={() => setShowGuide((v) => !v)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium"
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium cursor-pointer"
             >
               <span className="flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
@@ -187,7 +190,7 @@ export const ParticipantImporter = ({
                 <p className="text-xs text-muted-foreground">
                   {t.importer.participantsGuide}
                 </p>
-                <div className="rounded border border-slate-700 overflow-hidden">
+                <div className="rounded border border-white/10 overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -210,7 +213,7 @@ export const ParticipantImporter = ({
           <div className="space-y-2">
             <Label
               htmlFor="file-upload"
-              className="text-xs font-medium text-slate-500"
+              className="text-xs font-medium text-muted-foreground"
             >
               {t.importer.selectFile}
             </Label>
@@ -227,7 +230,7 @@ export const ParticipantImporter = ({
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 text-xs p-2 rounded flex items-start gap-2">
+            <div className="bg-destructive/10 text-destructive text-xs p-2.5 rounded-xl flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -235,10 +238,11 @@ export const ParticipantImporter = ({
 
           {headers.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-500">
+              <Label className="text-xs font-medium text-muted-foreground">
                 {t.importer.selectNameColumn}
+                <HelpTip text={t.importer.participantsGuide} />
               </Label>
-              <ScrollArea className="h-40 border rounded-md p-2 bg-black/90 text-white">
+              <ScrollArea className="h-40 border rounded-xl p-2 bg-muted/30">
                 <RadioGroup
                   value={selectedColumn}
                   onValueChange={setSelectedColumn}
@@ -260,7 +264,7 @@ export const ParticipantImporter = ({
                 </RadioGroup>
               </ScrollArea>
               {previewData.length > 0 && selectedColumn && (
-                <p className="text-xs text-slate-500 italic">
+                <p className="text-xs text-muted-foreground italic">
                   {t.importer.preview}: {previewData[0]?.[selectedColumn] || "(no preview)"},
                   ...
                 </p>
