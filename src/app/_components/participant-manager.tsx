@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ParticipantImporter } from "./ParticipantImporter";
+import { ParticipantImporter } from "./participant-importer";
 
 export const ParticipantManager = () => {
   const [name, setName] = useState("");
