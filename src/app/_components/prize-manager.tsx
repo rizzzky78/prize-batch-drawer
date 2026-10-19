@@ -44,7 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { PrizeImporter } from "./PrizeImporter";
+import { PrizeImporter } from "./prize-importer";
 
 export const PrizeManager = () => {
   const [sessionName, setSessionName] = useState("");

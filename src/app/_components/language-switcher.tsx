@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/store/useStore";
 import { useTranslation } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Languages, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
